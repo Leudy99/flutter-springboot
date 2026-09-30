@@ -1,0 +1,8 @@
+target/
+uploads/
+.mvn/
+mvnw
+mvnw.cmd
+postman/
+.vscode/
+.idea/

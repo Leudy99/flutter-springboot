@@ -1,0 +1,4 @@
+tags:
+  e2e:
+    # Requiere el backend levantado. Ver test/api_e2e_test.dart
+    skip: "Prueba e2e: usar --run-skipped --tags e2e"

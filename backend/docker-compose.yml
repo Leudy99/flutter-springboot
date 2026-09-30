@@ -1,0 +1,43 @@
+# Levanta la API Spring Boot + PostgreSQL
+#   docker compose up --build
+services:
+
+  db:
+    image: postgres:16
+    container_name: flutterapp-db
+    environment:
+      POSTGRES_DB: apidb
+      POSTGRES_USER: alumno
+      POSTGRES_PASSWORD: "123456"
+    ports:
+      # 5434 en el host para no chocar con otro PostgreSQL local (TablePlus: localhost:5434)
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alumno -d apidb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    container_name: flutterapp-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # "db" es el nombre del servicio: dentro de la red de Docker no se usa localhost
+      DB_URL: jdbc:postgresql://db:5432/apidb
+      DB_USER: alumno
+      DB_PASSWORD: "123456"
+      JWT_SECRET: clave-secreta-del-proyecto-flutter-app-32-caracteres-min
+      UPLOAD_DIR: /app/uploads
+    ports:
+      - "8081:8081"
+    volumes:
+      - uploads:/app/uploads
+
+volumes:
+  pgdata:
+  uploads:
