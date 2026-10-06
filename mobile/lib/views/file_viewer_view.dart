@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pdfrx/pdfrx.dart';
 import 'package:provider/provider.dart';
 
+import '../theme.dart';
 import '../viewmodels/file_viewer_viewmodel.dart';
 import 'common_widgets.dart';
 
@@ -27,10 +28,48 @@ class FileViewerView extends StatelessWidget {
             icon: const Icon(Icons.info_outline_rounded),
             onPressed: () => _showInfo(context, vm),
           ),
+          IconButton(
+            tooltip: 'Eliminar',
+            icon: const Icon(Icons.delete_outline, color: AppColors.error),
+            onPressed: vm.isDeleting ? null : () => _confirmDelete(context, vm),
+          ),
         ],
       ),
       body: _buildBody(context, vm),
     );
+  }
+
+  /// Pide confirmacion, elimina y vuelve atras devolviendo true
+  /// (la pantalla anterior recarga la lista).
+  Future<void> _confirmDelete(
+      BuildContext context, FileViewerViewModel vm) async {
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Eliminar archivo'),
+        content: Text(
+            '"${vm.file.originalName}" se borrara del servidor. Esta accion no se puede deshacer.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancelar')),
+          FilledButton(
+              style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.error,
+                  minimumSize: const Size(0, 40)),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Eliminar')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final error = await vm.delete();
+    messenger
+        .showSnackBar(SnackBar(content: Text(error ?? 'Archivo eliminado')));
+    if (error == null) navigator.pop(true);
   }
 
   Widget _buildBody(BuildContext context, FileViewerViewModel vm) {
@@ -101,7 +140,6 @@ class FileViewerView extends StatelessWidget {
             ),
             _info('Tipo', fileTypeLabel(file.contentType)),
             _info('Tamano', formatSize(file.size)),
-            _info('Subido por', file.uploadedBy ?? '-'),
             _info('Fecha',
                 file.uploadedAt == null ? '-' : formatDate(file.uploadedAt)),
             _info('Nombre en el servidor', file.storedName),

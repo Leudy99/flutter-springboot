@@ -24,4 +24,6 @@ class FileRepository {
   }
 
   Future<Uint8List> download(UploadedFile file) => _fileService.download(file);
+
+  Future<void> delete(UploadedFile file) => _fileService.deleteFile(file.id);
 }

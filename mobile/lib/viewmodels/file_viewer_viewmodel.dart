@@ -14,8 +14,24 @@ class FileViewerViewModel extends ChangeNotifier {
   FileViewerViewModel(this._fileRepository, this.file);
 
   bool isLoading = false;
+  bool isDeleting = false;
   String? error;
   Uint8List? content;
+
+  /// Elimina el archivo. Devuelve null si salio bien, o el mensaje de error.
+  Future<String?> delete() async {
+    isDeleting = true;
+    notifyListeners();
+    try {
+      await _fileRepository.delete(file);
+      return null;
+    } catch (e) {
+      return apiErrorMessage(e);
+    } finally {
+      isDeleting = false;
+      notifyListeners();
+    }
+  }
 
   /// Texto del archivo si es .txt
   String? get text => content == null || !file.isText

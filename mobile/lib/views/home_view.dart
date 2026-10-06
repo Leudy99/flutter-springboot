@@ -347,8 +347,11 @@ class _RecentFiles extends StatelessWidget {
               subtitle: Text(
                   '${fileTypeLabel(recent[i].contentType)}, ${formatSize(recent[i].size)}'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.pushNamed(context, '/files/view',
-                  arguments: recent[i]),
+              onTap: () async {
+                await Navigator.pushNamed(context, '/files/view',
+                    arguments: recent[i]);
+                vm.refresh();
+              },
             ),
           ],
         ],

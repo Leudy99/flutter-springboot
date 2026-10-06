@@ -28,9 +28,9 @@ services:
         condition: service_healthy
     environment:
       # "db" es el nombre del servicio: dentro de la red de Docker no se usa localhost
-      DB_URL: jdbc:postgresql://db:5432/apidb
-      DB_USER: alumno
-      DB_PASSWORD: "123456"
+      DATABASE_URL: jdbc:postgresql://db:5432/apidb
+      DATABASE_USERNAME: alumno
+      DATABASE_PASSWORD: "123456"
       JWT_SECRET: clave-secreta-del-proyecto-flutter-app-32-caracteres-min
       UPLOAD_DIR: /app/uploads
     ports:

@@ -60,3 +60,14 @@ mobile/android/**/.cxx/
 mobile/android/key.properties
 **/*.keystore
 **/*.jks
+
+# ===== Terraform =====
+# Plugins descargados y estado local (el estado real vive en S3)
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+# Archivos con secretos para pruebas locales: nunca subirlos
+*.secret.tfvars
+secrets.auto.tfvars

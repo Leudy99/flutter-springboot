@@ -103,9 +103,10 @@ Pestaña **Usuarios**: listar y buscar (`GET`), crear (`POST`), editar (`PUT`, c
 
 ### Archivos
 
-- **Subir:** se elige una imagen o documento (JPG, PNG, GIF, WEBP, PDF, TXT, Word, Excel; máx. 10 MB), se ve una vista previa y se envía como `multipart/form-data` a `POST /upload` con barra de progreso.
-- **Backend:** valida el tipo, guarda el archivo con un nombre único en `/app/uploads` y registra sus datos en la tabla `files`.
-- **Ver:** pestaña **Archivos**, galería con filtros. Al tocar un archivo se abre: imagen con zoom, PDF por páginas o texto. Word y Excel no tienen vista previa.
+- **Subir:** se elige una imagen o documento (JPG, PNG, GIF, WEBP, PDF, TXT, Word, Excel; máx. 4 MB), se ve una vista previa y se envía como `multipart/form-data` a `POST /upload` con barra de progreso.
+- **Backend:** valida el tipo, guarda el archivo con un nombre único (en S3 en AWS, en disco en local) y registra sus datos en la tabla `files`, ligado al usuario que lo subió.
+- **Ver:** pestaña **Archivos**, galería con filtros. Cada usuario ve **solo sus archivos**. Al tocar uno se abre: imagen con zoom, PDF por páginas o texto. Word y Excel no tienen vista previa.
+- **Eliminar:** botón de papelera en el visor. Solo el dueño puede eliminar su archivo; para otro usuario la API responde `404`.
 
 ### Concurrencia con `Future.wait()`
 
@@ -129,6 +130,26 @@ Cada petición de la demo espera 300 ms antes de salir, para imitar una red móv
 
 ---
 
+## Base de datos
+
+El esquema está en `backend/src/main/resources/db/migration/V1__esquema_inicial.sql`. **Flyway** lo aplica al arrancar la API y Hibernate solo valida que las entidades coincidan con las tablas.
+
+```text
+users                                   files
+─────────────────────────────           ──────────────────────────────────
+id            PK                  1 ─── N  id            PK
+name          NOT NULL                     user_id       FK → users.id (ON DELETE CASCADE)
+email         UNIQUE, minúsculas           original_name NOT NULL
+password_hash BCrypt (60)                  storage_key   UNIQUE (nombre en S3 / disco)
+created_at                                 content_type  NOT NULL
+updated_at                                 size_bytes    CHECK > 0
+                                           created_at
+```
+
+- Un usuario tiene muchos archivos, unidos por la clave foránea `user_id`.
+- Al eliminar un usuario se eliminan sus archivos: las filas, por `ON DELETE CASCADE`, y el contenido en S3, desde `UserService`.
+- El email se guarda en minúsculas, así que `Ana@Test.com` y `ana@test.com` son el mismo usuario.
+
 ## Endpoints
 
 | Método | Ruta | Token | Qué hace |
@@ -142,8 +163,9 @@ Cada petición de la demo espera 300 ms antes de salir, para imitar una red móv
 | `PUT` | `/api/users/{id}` | sí | Editar usuario |
 | `DELETE` | `/api/users/{id}` | sí | Eliminar usuario |
 | `POST` | `/upload` | sí | Subir archivo (campo `file`) |
-| `GET` | `/files` | sí | Listar archivos |
-| `GET` | `/files/{storedName}` | sí | Descargar archivo |
+| `GET` | `/files` | sí | Listar mis archivos |
+| `GET` | `/files/{storedName}` | sí | Descargar uno de mis archivos |
+| `DELETE` | `/files/{id}` | sí | Eliminar uno de mis archivos |
 
 | Error | Cuándo |
 | --- | --- |
@@ -151,4 +173,4 @@ Cada petición de la demo espera 300 ms antes de salir, para imitar una red móv
 | `401` | Sin token, token inválido/caducado o credenciales incorrectas |
 | `404` | Usuario o archivo no existe |
 | `409` | Email ya registrado |
-| `413` | Archivo mayor de 10 MB |
+| `413` | Archivo mayor de 4 MB |

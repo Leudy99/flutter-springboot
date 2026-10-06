@@ -63,7 +63,7 @@ public class UserRepositoryAdapter implements UserRepository {
                 entity.getId(),
                 entity.getName(),
                 entity.getEmail(),
-                entity.getPassword()
+                entity.getPasswordHash()
         );
     }
 
