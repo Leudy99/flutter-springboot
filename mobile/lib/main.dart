@@ -85,12 +85,12 @@ class App extends StatelessWidget {
                 create: (ctx) => HomeViewModel(ctx.read<UserRepository>(),
                     ctx.read<FileRepository>(), ctx.read<AuthRepository>())
                   ..refresh()),
+            // Usuarios y Archivos cargan al abrir su pestana (MainShellView),
+            // asi al entrar solo salen las peticiones del Inicio.
             ChangeNotifierProvider(
-                create: (ctx) =>
-                    UserListViewModel(ctx.read<UserRepository>())..loadUsers()),
+                create: (ctx) => UserListViewModel(ctx.read<UserRepository>())),
             ChangeNotifierProvider(
-                create: (ctx) =>
-                    FilesViewModel(ctx.read<FileRepository>())..loadFiles()),
+                create: (ctx) => FilesViewModel(ctx.read<FileRepository>())),
           ],
           child: const MainShellView(),
         ),

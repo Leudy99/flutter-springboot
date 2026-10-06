@@ -31,7 +31,9 @@ flutter run
 En VS Code: abre `mobile`, elige el emulador en la barra inferior y pulsa **F5**.
 En la pantalla de acceso elige **Crear cuenta** o entra con `admin@test.com` / `123456`.
 
-> La primera petición tras un rato sin uso tarda unos 9 s: Lambda arranca Spring Boot ("arranque en frío"). Las siguientes tardan unos 0,3 s.
+> La primera petición tras un rato sin uso tarda unos 2 s (Lambda restaura Spring Boot con SnapStart). Las siguientes tardan unos 0,3 s.
+>
+> Para la demo, ejecuta la app en modo profile, que es mucho más fluido que el modo debug de F5: `flutter run --profile`.
 
 ### Opción B: backend local con Docker
 
@@ -199,11 +201,13 @@ Todo está en `terraform/`; no se creó nada a mano en la consola de AWS.
 | Recurso | Para qué |
 | --- | --- |
 | API Gateway (HTTP API) | URL pública. La ruta `$default` envía todas las peticiones a la Lambda |
-| Lambda `flutter-springboot-api` | Spring Boot (Java 17, 2048 MB, 30 s) |
+| Lambda `flutter-springboot-api` | Spring Boot (Java 17, 2048 MB, 30 s), con **SnapStart** y alias `live` |
 | IAM Role + Policy | Permiso mínimo: escribir sus logs y leer, guardar y borrar en `files/uploads/*` |
 | CloudWatch Logs | Logs de la Lambda (7 días) |
 | S3 `files` | Archivos de los usuarios. **Privado**: solo se accede a través de la API |
 | S3 `artifacts` | El zip de la Lambda (más de 50 MB, el límite de subida directa) |
+
+**SnapStart:** al publicar cada versión, AWS arranca Spring Boot una vez y guarda una "foto" de la memoria. Las instancias nuevas se restauran desde esa foto en ~1 s en lugar de arrancar desde cero (~8 s). API Gateway invoca el alias `live`, que apunta siempre a la última versión publicada.
 
 `terraform/bootstrap/` crea, una sola vez, el bucket donde Terraform guarda su **estado**. Así tu PC y GitHub Actions trabajan sobre la misma infraestructura.
 
