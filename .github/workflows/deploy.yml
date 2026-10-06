@@ -10,6 +10,9 @@ name: Deploy Serverless
 on:
   push:
     branches: [main]
+    # Cambios solo de documentacion no necesitan redesplegar
+    paths-ignore:
+      - "**.md"
   # Permite lanzarlo a mano desde la pestana Actions
   workflow_dispatch:
 
