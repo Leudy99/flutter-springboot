@@ -141,14 +141,27 @@ resource "aws_lambda_function" "api" {
       # Cada instancia de Lambda atiende una peticion a la vez: 2 conexiones bastan
       DB_POOL_SIZE = "2"
       SHOW_SQL     = "false"
-
-      # Recomendacion de AWS para Java: compila menos al arrancar -> arranque en frio mas rapido
-      JAVA_TOOL_OPTIONS = "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     }
+  }
+
+  # SnapStart: al publicar una version, AWS arranca Spring Boot una vez y guarda
+  # una "foto" de la memoria. Cada instancia nueva se restaura desde esa foto
+  # en ~1-2 s en lugar de arrancar Spring desde cero (~9 s).
+  publish = true
+  snap_start {
+    apply_on = "PublishedVersions"
   }
 
   # El log group debe existir antes, para que tenga la retencion de 7 dias
   depends_on = [aws_cloudwatch_log_group.lambda, aws_iam_role_policy.lambda]
+}
+
+# Alias "live": apunta siempre a la ultima version publicada (la que tiene SnapStart).
+# API Gateway invoca el alias, no la funcion "a secas".
+resource "aws_lambda_alias" "live" {
+  name             = "live"
+  function_name    = aws_lambda_function.api.function_name
+  function_version = aws_lambda_function.api.version
 }
 
 # -----------------------------------------------------------------------------
@@ -164,7 +177,7 @@ resource "aws_apigatewayv2_api" "http" {
 resource "aws_apigatewayv2_integration" "lambda" {
   api_id                 = aws_apigatewayv2_api.http.id
   integration_type       = "AWS_PROXY"
-  integration_uri        = aws_lambda_function.api.invoke_arn
+  integration_uri        = aws_lambda_alias.live.invoke_arn
   payload_format_version = "2.0"
   timeout_milliseconds   = 30000
 }
@@ -193,6 +206,7 @@ resource "aws_lambda_permission" "apigateway" {
   statement_id  = "AllowApiGatewayInvoke"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.api.function_name
+  qualifier     = aws_lambda_alias.live.name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.http.execution_arn}/*/*"
 }
