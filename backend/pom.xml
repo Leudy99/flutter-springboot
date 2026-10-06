@@ -20,7 +20,22 @@
     <properties>
         <java.version>17</java.version>
         <jjwt.version>0.12.6</jjwt.version>
+        <aws-serverless-container.version>2.1.5</aws-serverless-container.version>
+        <aws-sdk.version>2.55.11</aws-sdk.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Versiones alineadas de todas las librerias del AWS SDK v2 -->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${aws-sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
 
@@ -60,6 +75,17 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Flyway: crea y versiona las tablas a partir de los scripts SQL
+             de src/main/resources/db/migration -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
         <!-- JWT (JJWT): api + implementacion + serializacion JSON -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -79,6 +105,35 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- AWS Lambda: traduce los eventos de API Gateway a peticiones HTTP para Spring -->
+        <dependency>
+            <groupId>com.amazonaws.serverless</groupId>
+            <artifactId>aws-serverless-java-container-springboot3</artifactId>
+            <version>${aws-serverless-container.version}</version>
+        </dependency>
+
+        <!-- Amazon S3: guardar archivos subidos cuando la API corre en AWS.
+             Se usa el cliente HTTP ligero del JDK (url-connection) y se excluyen
+             los clientes Netty y Apache para que el paquete de Lambda pese menos. -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>software.amazon.awssdk</groupId>
+                    <artifactId>netty-nio-client</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>software.amazon.awssdk</groupId>
+                    <artifactId>apache-client</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>url-connection-client</artifactId>
+        </dependency>
+
         <!-- Pruebas -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -95,5 +150,40 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!--
+            Empaquetado para AWS Lambda: mvn -Plambda package
+            Genera target/api-springboot-lambda.zip con las clases en la raiz
+            y las dependencias en lib/, que es el formato que espera Lambda.
+        -->
+        <profile>
+            <id>lambda</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <configuration>
+                            <finalName>api-springboot-lambda</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/assembly/lambda.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>lambda-zip</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

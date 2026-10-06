@@ -93,7 +93,7 @@ class FilesView extends StatelessWidget {
         title: vm.totalCount == 0
             ? 'Todavia no hay archivos'
             : 'Nada en esta categoria',
-        message: 'Sube imagenes, PDF, TXT, Word o Excel de hasta 10 MB.',
+        message: 'Sube imagenes, PDF, TXT, Word o Excel de hasta 4 MB.',
         action: FilledButton.icon(
           onPressed: () => _upload(context),
           icon: const Icon(Icons.upload_file),
@@ -130,8 +130,11 @@ class _FileTile extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () =>
-            Navigator.pushNamed(context, '/files/view', arguments: file),
+        onTap: () async {
+          final deleted = await Navigator.pushNamed(context, '/files/view',
+              arguments: file);
+          if (deleted == true) vm.loadFiles();
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

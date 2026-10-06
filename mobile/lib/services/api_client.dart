@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import '../config.dart';
 import 'token_storage.dart';
 
 /// Cliente HTTP compartido por todos los services.
@@ -8,15 +9,8 @@ import 'token_storage.dart';
 /// Un interceptor agrega "Authorization: Bearer TOKEN" a cada peticion
 /// y, si el backend responde 401, borra el token y avisa a la app.
 class ApiClient {
-  /// URL del backend.
-  /// - Web: localhost
-  /// - Emulador Android: 10.0.2.2 (es el localhost del PC)
-  /// - Dispositivo fisico: flutter run --dart-define=API_URL=http://IP_DEL_PC:8081
-  static String get baseUrl {
-    const fromEnv = String.fromEnvironment('API_URL');
-    if (fromEnv.isNotEmpty) return fromEnv;
-    return kIsWeb ? 'http://localhost:8081' : 'http://10.0.2.2:8081';
-  }
+  /// URL del backend: se define en config.dart (local o AWS).
+  static String get baseUrl => AppConfig.apiUrl;
 
   final TokenStorage _tokenStorage;
   late final Dio dio;

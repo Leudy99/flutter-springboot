@@ -39,7 +39,7 @@ public class AuthService {
      * Si coincide, devuelve un JWT. Si no, lanza 401.
      */
     public String login(String email, String rawPassword) {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(UserService.normalizeEmail(email))
                 .orElseThrow(InvalidCredentialsException::new);
 
         if (!passwordHasher.matches(rawPassword, user.getPassword())) {

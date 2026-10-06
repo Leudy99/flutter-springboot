@@ -26,27 +26,37 @@ public class StoredFileRepositoryAdapter implements StoredFileRepository {
     }
 
     @Override
-    public List<StoredFile> findAll() {
-        return jpaRepository.findAll()
+    public List<StoredFile> findByOwnerId(Long ownerId) {
+        return jpaRepository.findByUserIdOrderByIdDesc(ownerId)
                 .stream()
                 .map(this::toDomain)
                 .toList();
     }
 
     @Override
+    public Optional<StoredFile> findById(Long id) {
+        return jpaRepository.findById(id).map(this::toDomain);
+    }
+
+    @Override
     public Optional<StoredFile> findByStoredName(String storedName) {
-        return jpaRepository.findByStoredName(storedName).map(this::toDomain);
+        return jpaRepository.findByStorageKey(storedName).map(this::toDomain);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        jpaRepository.deleteById(id);
     }
 
     // --- Conversores ---
 
     private StoredFile toDomain(StoredFileEntity e) {
-        return new StoredFile(e.getId(), e.getOriginalName(), e.getStoredName(),
-                e.getContentType(), e.getSize(), e.getUploadedBy(), e.getUploadedAt());
+        return new StoredFile(e.getId(), e.getUserId(), e.getOriginalName(), e.getStorageKey(),
+                e.getContentType(), e.getSizeBytes(), e.getCreatedAt());
     }
 
     private StoredFileEntity toEntity(StoredFile f) {
-        return new StoredFileEntity(f.getId(), f.getOriginalName(), f.getStoredName(),
-                f.getContentType(), f.getSize(), f.getUploadedBy(), f.getUploadedAt());
+        return new StoredFileEntity(f.getId(), f.getOwnerId(), f.getOriginalName(),
+                f.getStoredName(), f.getContentType(), f.getSize(), f.getUploadedAt());
     }
 }

@@ -7,8 +7,7 @@ import com.example.api.domain.model.StoredFile;
  * "url" es la ruta relativa para descargarlo: GET /files/{storedName}
  */
 public record FileResponse(Long id, String originalName, String storedName,
-                           String contentType, long size, String url,
-                           String uploadedBy, String uploadedAt) {
+                           String contentType, long size, String url, String uploadedAt) {
 
     public static FileResponse from(StoredFile file) {
         return new FileResponse(
@@ -18,8 +17,7 @@ public record FileResponse(Long id, String originalName, String storedName,
                 file.getContentType(),
                 file.getSize(),
                 "/files/" + file.getStoredName(),
-                file.getUploadedBy(),
-                file.getUploadedAt().toString()
+                file.getUploadedAt() == null ? null : file.getUploadedAt().toString()
         );
     }
 }

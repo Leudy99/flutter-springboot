@@ -44,6 +44,12 @@ class FileService {
     return Uint8List.fromList(response.data!);
   }
 
+  /// Elimina uno de mis archivos (DELETE /files/{id}).
+  Future<void> deleteFile(int id) async {
+    await _api.dio.delete('/files/$id');
+  }
+
+  /// Mis archivos (el backend solo devuelve los del usuario del token).
   Future<List<UploadedFile>> getFiles() async {
     final response = await _api.dio.get('/files');
     return (response.data as List)

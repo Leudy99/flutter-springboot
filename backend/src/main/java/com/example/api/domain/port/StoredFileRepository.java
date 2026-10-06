@@ -12,7 +12,12 @@ public interface StoredFileRepository {
 
     StoredFile save(StoredFile file);
 
-    List<StoredFile> findAll();
+    /** Archivos de un usuario, del mas reciente al mas antiguo. */
+    List<StoredFile> findByOwnerId(Long ownerId);
+
+    Optional<StoredFile> findById(Long id);
 
     Optional<StoredFile> findByStoredName(String storedName);
+
+    void deleteById(Long id);
 }

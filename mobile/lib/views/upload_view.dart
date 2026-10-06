@@ -153,7 +153,7 @@ class _Placeholder extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
           SizedBox(height: 4),
           Text(
-            'JPG, PNG, GIF, WEBP, PDF, TXT, Word o Excel, hasta 10 MB.',
+            'JPG, PNG, GIF, WEBP, PDF, TXT, Word o Excel, hasta 4 MB.',
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.inkSoft),
           ),

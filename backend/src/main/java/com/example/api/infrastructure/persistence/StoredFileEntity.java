@@ -6,11 +6,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Entidad JPA de la tabla "files": referencia de cada archivo subido.
+ * La tabla y la clave foranea hacia users la crea Flyway (V1__esquema_inicial.sql).
  */
 @Entity
 @Table(name = "files")
@@ -20,63 +22,65 @@ public class StoredFileEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    // Clave foranea a users.id (ON DELETE CASCADE en la base de datos)
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    @Column(name = "original_name", nullable = false)
     private String originalName;
 
-    @Column(nullable = false, unique = true)
-    private String storedName;
+    @Column(name = "storage_key", nullable = false, unique = true)
+    private String storageKey;
 
-    @Column(nullable = false, length = 150)
+    @Column(name = "content_type", nullable = false, length = 100)
     private String contentType;
 
-    @Column(nullable = false)
-    private long size;
+    @Column(name = "size_bytes", nullable = false)
+    private long sizeBytes;
 
-    @Column(length = 150)
-    private String uploadedBy;
-
-    @Column(nullable = false)
-    private LocalDateTime uploadedAt;
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
 
     public StoredFileEntity() {
     }
 
-    public StoredFileEntity(Long id, String originalName, String storedName, String contentType,
-                            long size, String uploadedBy, LocalDateTime uploadedAt) {
+    public StoredFileEntity(Long id, Long userId, String originalName, String storageKey,
+                            String contentType, long sizeBytes, Instant createdAt) {
         this.id = id;
+        this.userId = userId;
         this.originalName = originalName;
-        this.storedName = storedName;
+        this.storageKey = storageKey;
         this.contentType = contentType;
-        this.size = size;
-        this.uploadedBy = uploadedBy;
-        this.uploadedAt = uploadedAt;
+        this.sizeBytes = sizeBytes;
+        this.createdAt = createdAt;
     }
 
     public Long getId() {
         return id;
     }
 
+    public Long getUserId() {
+        return userId;
+    }
+
     public String getOriginalName() {
         return originalName;
     }
 
-    public String getStoredName() {
-        return storedName;
+    public String getStorageKey() {
+        return storageKey;
     }
 
     public String getContentType() {
         return contentType;
     }
 
-    public long getSize() {
-        return size;
+    public long getSizeBytes() {
+        return sizeBytes;
     }
 
-    public String getUploadedBy() {
-        return uploadedBy;
-    }
-
-    public LocalDateTime getUploadedAt() {
-        return uploadedAt;
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 }

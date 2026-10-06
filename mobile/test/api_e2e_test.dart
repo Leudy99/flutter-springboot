@@ -1,6 +1,7 @@
 // Prueba de extremo a extremo: ViewModels -> Repositories -> Services -> backend real.
-// Requiere el backend levantado (docker compose up). Ejecutar con:
-//   flutter test test/api_e2e_test.dart --dart-define=API_URL=http://localhost:8081
+// Requiere un backend en marcha (AWS, o local con docker compose up). Ejecutar con:
+//   flutter test --run-skipped --tags e2e test/api_e2e_test.dart             (backend de config.dart)
+//   flutter test --run-skipped --tags e2e --dart-define=API_URL=http://localhost:8081 test/api_e2e_test.dart
 @Tags(['e2e'])
 library;
 
@@ -201,13 +202,19 @@ void main() {
     await filesVm.loadFiles();
     final first = filesVm.files.first;
     expect(first.id, vm.uploadedFile!.id);
-    expect(first.uploadedBy, myEmail);
+    // Usuario nuevo: solo ve su propio archivo
+    expect(filesVm.totalCount, 1);
     filesVm.setFilter(FileFilter.images);
     expect(filesVm.files.every((f) => f.isImage), isTrue);
 
     final viewer = FileViewerViewModel(fileRepository, first);
     await viewer.load();
     expect(viewer.content, vm.selectedFile!.bytes);
+
+    // Eliminar: desaparece de la lista
+    expect(await viewer.delete(), isNull);
+    await filesVm.loadFiles();
+    expect(filesVm.totalCount, 0);
     expect(progressValues.where((p) => p > 0 && p <= 1), isNotEmpty);
   });
 
