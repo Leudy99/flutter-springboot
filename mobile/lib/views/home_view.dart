@@ -65,6 +65,14 @@ class HomeView extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: () =>
+                          Navigator.pushNamed(context, '/notifications'),
+                      icon: const Icon(Icons.mark_email_unread_outlined,
+                          size: 20),
+                      label: const Text('Enviar notificacion por correo'),
+                    ),
                     const SizedBox(height: 24),
                     _ConcurrencyPanel(vm: vm),
                     const SizedBox(height: 24),
