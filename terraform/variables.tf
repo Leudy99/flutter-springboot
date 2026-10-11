@@ -30,6 +30,36 @@ variable "lambda_timeout_seconds" {
   default     = 30
 }
 
+# --- Notificaciones por correo (SNS + SQS) ---
+
+variable "notification_topic_name" {
+  description = "Nombre del SNS Topic (se le antepone project_name)"
+  type        = string
+  default     = "notification-topic"
+}
+
+variable "notification_queue_name" {
+  description = "Nombre de la cola SQS (se le antepone project_name)"
+  type        = string
+  default     = "notification-queue"
+}
+
+variable "notification_lambda_name" {
+  description = "Nombre de la Lambda que envia los correos (se le antepone project_name)"
+  type        = string
+  default     = "notification-lambda"
+}
+
+variable "email_sender" {
+  description = "Correo remitente de las notificaciones (se verifica en SES). Llega desde TF_VAR_email_sender / GitHub Secret EMAIL_SENDER"
+  type        = string
+
+  validation {
+    condition     = can(regex("^[^@[:space:]]+@[^@[:space:]]+[.][^@[:space:]]+$", var.email_sender))
+    error_message = "email_sender debe ser un correo valido (ej: usuario@dominio.com)."
+  }
+}
+
 # --- Secretos ---
 # NO van en terraform.tfvars. Se pasan como variables de entorno:
 #   TF_VAR_database_url, TF_VAR_database_username,
