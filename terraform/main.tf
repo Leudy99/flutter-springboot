@@ -365,11 +365,13 @@ resource "aws_iam_role_policy" "notification_lambda" {
         Resource = aws_sqs_queue.notifications.arn
       },
       {
-        # Enviar correos solo con la identidad verificada del proyecto
+        # Enviar correos con identidades verificadas de SES de esta cuenta y region.
+        # En sandbox SES autoriza el envio sobre la identidad del remitente Y la del
+        # destinatario (ambas deben estar verificadas), por eso no basta con el ARN del remitente.
         Sid      = "SendEmail"
         Effect   = "Allow"
         Action   = "ses:SendEmail"
-        Resource = aws_sesv2_email_identity.sender.arn
+        Resource = "arn:aws:ses:${var.aws_region}:${local.account_id}:identity/*"
       }
     ]
   })
@@ -381,7 +383,7 @@ resource "aws_lambda_function" "notification" {
 
   runtime     = "python3.12"
   handler     = "lambda_function.lambda_handler"
-  memory_size = 128
+  memory_size = 256 # con 128 MB importar boto3 tardaba ~4 s
   timeout     = 30
 
   filename         = data.archive_file.notification_lambda.output_path

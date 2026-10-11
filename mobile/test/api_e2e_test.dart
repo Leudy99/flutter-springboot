@@ -10,6 +10,9 @@ import 'dart:typed_data';
 import 'package:flutter_app/models/picked_file.dart';
 import 'package:flutter_app/repositories/auth_repository.dart';
 import 'package:flutter_app/repositories/file_repository.dart';
+import 'package:flutter_app/repositories/notification_repository.dart';
+import 'package:flutter_app/services/notification_service.dart';
+import 'package:flutter_app/viewmodels/notification_viewmodel.dart';
 import 'package:flutter_app/repositories/user_repository.dart';
 import 'package:flutter_app/services/api_client.dart';
 import 'package:flutter_app/services/auth_service.dart';
@@ -216,6 +219,20 @@ void main() {
     await filesVm.loadFiles();
     expect(filesVm.totalCount, 0);
     expect(progressValues.where((p) => p > 0 && p <= 1), isNotEmpty);
+  });
+
+  test('notificaciones: el backend valida los datos y la app muestra el error',
+      () async {
+    final vm = NotificationViewModel(
+        NotificationRepository(NotificationService(apiClient)));
+
+    // Datos invalidos: el backend responde 400 y NO se publica nada en SNS
+    final ok = await vm.send('no-es-un-correo', '', '');
+
+    expect(ok, isFalse);
+    expect(vm.successMessage, isNull);
+    expect(vm.error, contains('Error al enviar mensaje.'));
+    expect(vm.error, contains('El asunto es obligatorio'));
   });
 
   test('token invalido -> 401 -> se borra el token', () async {

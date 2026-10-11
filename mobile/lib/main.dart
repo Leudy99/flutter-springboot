@@ -4,10 +4,12 @@ import 'package:provider/provider.dart';
 import 'models/uploaded_file.dart';
 import 'repositories/auth_repository.dart';
 import 'repositories/file_repository.dart';
+import 'repositories/notification_repository.dart';
 import 'repositories/user_repository.dart';
 import 'services/api_client.dart';
 import 'services/auth_service.dart';
 import 'services/file_service.dart';
+import 'services/notification_service.dart';
 import 'services/token_storage.dart';
 import 'services/user_service.dart';
 import 'theme.dart';
@@ -15,11 +17,13 @@ import 'viewmodels/file_viewer_viewmodel.dart';
 import 'viewmodels/files_viewmodel.dart';
 import 'viewmodels/home_viewmodel.dart';
 import 'viewmodels/login_viewmodel.dart';
+import 'viewmodels/notification_viewmodel.dart';
 import 'viewmodels/upload_viewmodel.dart';
 import 'viewmodels/user_form_viewmodel.dart';
 import 'viewmodels/user_list_viewmodel.dart';
 import 'views/file_viewer_view.dart';
 import 'views/main_shell_view.dart';
+import 'views/notification_view.dart';
 import 'views/login_view.dart';
 import 'views/upload_view.dart';
 import 'views/user_form_view.dart';
@@ -36,6 +40,8 @@ Future<void> main() async {
   final authRepository = AuthRepository(AuthService(apiClient), tokenStorage);
   final userRepository = UserRepository(UserService(apiClient));
   final fileRepository = FileRepository(FileService(apiClient));
+  final notificationRepository =
+      NotificationRepository(NotificationService(apiClient));
 
   // Token invalido o expirado -> volver al login
   apiClient.onUnauthorized = () {
@@ -50,6 +56,7 @@ Future<void> main() async {
         Provider.value(value: authRepository),
         Provider.value(value: userRepository),
         Provider.value(value: fileRepository),
+        Provider.value(value: notificationRepository),
       ],
       child: App(initialRoute: loggedIn ? '/home' : '/login'),
     ),
@@ -105,6 +112,11 @@ class App extends StatelessWidget {
               ctx.read<FileRepository>(), settings.arguments as UploadedFile)
             ..load(),
           child: const FileViewerView(),
+        ),
+      '/notifications' => ChangeNotifierProvider(
+          create: (ctx) =>
+              NotificationViewModel(ctx.read<NotificationRepository>()),
+          child: const NotificationView(),
         ),
       '/upload' => ChangeNotifierProvider(
           create: (ctx) => UploadViewModel(ctx.read<FileRepository>()),
