@@ -3,11 +3,12 @@
 App Flutter que consume una API Spring Boot desplegada en AWS de forma **serverless**: API Gateway, Lambda, PostgreSQL en Neon y S3.
 La infraestructura se crea con **Terraform** y se despliega sola con **GitHub Actions** en cada push a `main`.
 
-La app permite: iniciar sesión (JWT), gestionar usuarios (CRUD), subir, ver y eliminar sus archivos, y comparar peticiones en paralelo con `Future.wait()`.
+La app permite: iniciar sesión (JWT), gestionar usuarios (CRUD), subir, ver y eliminar sus archivos, enviar notificaciones por correo y comparar peticiones en paralelo con `Future.wait()`.
 
 ```text
 App Flutter ──HTTPS + JWT──> API Gateway ──> AWS Lambda (Spring Boot) ──> PostgreSQL (Neon)
-                                                       └──────────────> S3 (archivos)
+                                                       ├──────────────> S3 (archivos)
+                                                       └─ SNS ─> SQS ─> notification-lambda ─> correo (SES)
 
 git push main ──> GitHub Actions ──> pruebas + zip ──> Terraform ──> AWS actualizado
 ```
@@ -81,6 +82,7 @@ El dominio solo conoce interfaces (puertos); la infraestructura las implementa:
 | `PasswordHasher` | `BCryptPasswordHasher` |
 | `TokenProvider` | `JwtService` |
 | `FileStorage` | `S3FileStorage` en AWS / `LocalFileStorage` en local (se elige con `STORAGE=s3\|local`) |
+| `NotificationPublisher` | `SnsNotificationPublisher` en AWS / `LogNotificationPublisher` en local (`NOTIFICATIONS=sns\|log`) |
 
 Para llevar la API a Lambda **no se cambió ningún controller ni servicio**: se añadió `StreamLambdaHandler`, que convierte el evento de API Gateway en una petición HTTP para Spring. Y para usar S3 se añadió `S3FileStorage`, otro adaptador del mismo puerto `FileStorage`.
 
@@ -122,6 +124,25 @@ Pestaña **Usuarios**: listar y buscar (`GET`), crear (`POST`), editar (`PUT`, c
 - **Backend:** valida el tipo, guarda el archivo con un nombre único (en S3 en AWS, en disco en local) y registra sus datos en la tabla `files`, ligado al usuario que lo subió.
 - **Ver:** pestaña **Archivos**, galería con filtros. Cada usuario ve **solo sus archivos**. Al tocar uno se abre: imagen con zoom, PDF por páginas o texto. Word y Excel no tienen vista previa.
 - **Eliminar:** botón de papelera en el visor. Solo el dueño puede eliminar su archivo; para otro usuario la API responde `404`.
+
+### Notificaciones por correo (SNS → SQS → Lambda)
+
+La pantalla **Enviar notificación** (botón en el Inicio) pide correo destino, asunto y mensaje y llama a `POST /notifications/send`.
+
+```text
+Flutter → API Gateway → Lambda principal ─publica→ SNS Topic ─suscripción→ SQS Queue
+                                                                              │ Event Source Mapping
+                                                                              ▼
+                                                  correo ◄── Amazon SES ◄── notification-lambda
+```
+
+1. **Backend:** `NotificationController` valida los datos (`@Email`, `@NotBlank`), `NotificationService` y el puerto `NotificationPublisher` publican un JSON `{email, subject, message}` en SNS y responden `200` **sin enviar el correo**. Si SNS falla responde `503`.
+2. **SNS → SQS:** la cola guarda el mensaje hasta que alguien lo procese. Si el envío falla, SQS lo reintenta y a los 3 intentos lo manda a una cola de errores (DLQ).
+3. **notification-lambda** (`notification-lambda/lambda_function.py`, Python): AWS la invoca sola cuando hay mensajes en la cola. Valida el JSON, envía el correo con **Amazon SES** y registra en CloudWatch: "Mensaje recibido desde SQS", "Correo enviado correctamente" o "Error al procesar mensaje".
+
+Todo el proceso dentro de AWS tarda unas décimas de segundo; la Lambda principal no espera al correo.
+
+**SES en modo sandbox:** solo envía **desde** y **hacia** direcciones verificadas (`aws sesv2 create-email-identity --email-identity <correo>` y abrir el enlace que llega). El remitente se verifica solo con Terraform. Algunos proveedores (Gmail, por ejemplo) pueden filtrar o retener mensajes que dicen venir de `hotmail.com` pero salen de los servidores de Amazon; con un destinatario Hotmail llegan en segundos.
 
 ### Concurrencia con `Future.wait()`
 
@@ -181,6 +202,7 @@ updated_at                                 size_bytes    CHECK > 0
 | `GET` | `/files` | sí | Listar mis archivos |
 | `GET` | `/files/{storedName}` | sí | Descargar uno de mis archivos |
 | `DELETE` | `/files/{id}` | sí | Eliminar uno de mis archivos |
+| `POST` | `/notifications/send` | sí | Publicar una notificación por correo (`email`, `subject`, `message`) |
 
 | Error | Cuándo |
 | --- | --- |
@@ -188,6 +210,7 @@ updated_at                                 size_bytes    CHECK > 0
 | `401` | Sin token, token inválido/caducado o credenciales incorrectas |
 | `404` | Usuario o archivo no existe |
 | `409` | Email ya registrado |
+| `503` | No se pudo publicar la notificación en SNS |
 | `413` | Archivo mayor de 4 MB |
 
 ---
@@ -206,14 +229,20 @@ Todo está en `terraform/`; no se creó nada a mano en la consola de AWS.
 | CloudWatch Logs | Logs de la Lambda (7 días) |
 | S3 `files` | Archivos de los usuarios. **Privado**: solo se accede a través de la API |
 | S3 `artifacts` | El zip de la Lambda (más de 50 MB, el límite de subida directa) |
+| SNS Topic `…-notification-topic` | Recibe lo que publica el backend |
+| SQS Queue `…-notification-queue` + DLQ | Guarda los mensajes; tras 3 fallos pasan a la DLQ. Una política deja a SNS (solo a nuestro topic) enviar a la cola |
+| Suscripción SNS → SQS | `raw_message_delivery`: el cuerpo en SQS es directamente el JSON |
+| Lambda `…-notification-lambda` | Python 3.12, 256 MB. Rol IAM propio: leer su cola, escribir sus logs y `ses:SendEmail` |
+| Event Source Mapping | SQS → notification-lambda (un mensaje por invocación) |
+| SES identity | Remitente verificado (`email_sender`) |
 
 **SnapStart:** al publicar cada versión, AWS arranca Spring Boot una vez y guarda una "foto" de la memoria. Las instancias nuevas se restauran desde esa foto en ~1 s en lugar de arrancar desde cero (~8 s). API Gateway invoca el alias `live`, que apunta siempre a la última versión publicada.
 
 `terraform/bootstrap/` crea, una sola vez, el bucket donde Terraform guarda su **estado**. Así tu PC y GitHub Actions trabajan sobre la misma infraestructura.
 
-La Lambda recibe la configuración por variables de entorno: `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `JWT_SECRET`, `STORAGE=s3` y `S3_BUCKET`. Ningún secreto está escrito en el código.
+La Lambda recibe la configuración por variables de entorno: `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `JWT_SECRET`, `STORAGE=s3`, `S3_BUCKET`, `NOTIFICATIONS=sns` y `SNS_TOPIC_ARN`. Ningún secreto está escrito en el código.
 
-Outputs (`terraform output`): `api_url`, `lambda_function_name`, `lambda_arn` y `files_bucket`.
+Outputs (`terraform output`): `api_url`, `lambda_function_name`, `lambda_arn`, `files_bucket`, `sns_topic_arn`, `sqs_queue_url`, `sqs_dlq_url`, `notification_lambda_name` y `ses_sender`.
 
 Despliegue manual desde tu PC:
 
@@ -221,7 +250,7 @@ Despliegue manual desde tu PC:
 cd backend && ./mvnw -Plambda package        # genera target/api-springboot-lambda.zip
 cd ../terraform
 # secretos como variables de entorno: TF_VAR_database_url, TF_VAR_database_username,
-# TF_VAR_database_password, TF_VAR_jwt_secret
+# TF_VAR_database_password, TF_VAR_jwt_secret, TF_VAR_email_sender
 terraform init
 terraform plan
 terraform apply
@@ -232,7 +261,7 @@ terraform apply
 `.github/workflows/deploy.yml` se ejecuta en cada push a `main`:
 
 ```text
-checkout → Java 17 → dependencias → pruebas → zip de Lambda → credenciales AWS
+checkout → Java 17 → dependencias → pruebas (Java y Python) → zip de Lambda → credenciales AWS
          → terraform init → validate → plan → apply
 ```
 
@@ -249,5 +278,6 @@ En **Settings → Secrets and variables → Actions**:
 | `DATABASE_URL` | URL JDBC de Neon, sin usuario ni clave |
 | `DATABASE_USERNAME` / `DATABASE_PASSWORD` | Credenciales de Neon |
 | `JWT_SECRET` | Clave para firmar los tokens (mínimo 32 caracteres) |
+| `EMAIL_SENDER` | Correo remitente de las notificaciones (se verifica en SES) |
 
 GitHub oculta estos valores en los logs (`***`) y Terraform los marca como sensibles.
