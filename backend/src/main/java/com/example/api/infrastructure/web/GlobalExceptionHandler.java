@@ -4,6 +4,7 @@ import com.example.api.domain.exception.EmailAlreadyExistsException;
 import com.example.api.domain.exception.FileNotFoundException;
 import com.example.api.domain.exception.InvalidCredentialsException;
 import com.example.api.domain.exception.InvalidFileException;
+import com.example.api.domain.exception.NotificationPublishException;
 import com.example.api.domain.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +53,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<Map<String, Object>> handleMissingPart(MissingServletRequestPartException ex) {
         return build(HttpStatus.BAD_REQUEST, "Falta el campo '" + ex.getRequestPartName() + "'");
+    }
+
+    /** SNS no acepto el mensaje: el servicio no esta disponible por ahora. */
+    @ExceptionHandler(NotificationPublishException.class)
+    public ResponseEntity<Map<String, Object>> handleNotificationPublish(NotificationPublishException ex) {
+        return build(HttpStatus.SERVICE_UNAVAILABLE, "No se pudo enviar el mensaje. Intentalo de nuevo");
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)

@@ -36,6 +36,8 @@ jobs:
       TF_VAR_database_username: ${{ secrets.DATABASE_USERNAME }}
       TF_VAR_database_password: ${{ secrets.DATABASE_PASSWORD }}
       TF_VAR_jwt_secret: ${{ secrets.JWT_SECRET }}
+      # Remitente de las notificaciones por correo (se verifica en Amazon SES)
+      TF_VAR_email_sender: ${{ secrets.EMAIL_SENDER }}
       # Terraform sin preguntas interactivas
       TF_INPUT: "false"
       TF_IN_AUTOMATION: "true"
@@ -62,6 +64,10 @@ jobs:
       - name: Ejecutar pruebas
         working-directory: backend
         run: ./mvnw -B test
+
+      # Pruebas de notification-lambda (Python; el runner ya trae python3)
+      - name: Probar notification-lambda
+        run: python3 -m unittest discover -s notification-lambda -v
 
       # 5 y 6. Compilar el backend y generar el zip para Lambda
       - name: Construir backend y empaquetar Lambda

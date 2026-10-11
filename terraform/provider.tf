@@ -6,6 +6,11 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 6.0"
     }
+    # Empaqueta notification-lambda en un .zip
+    archive = {
+      source  = "hashicorp/archive"
+      version = "~> 2.0"
+    }
   }
 
   # Estado remoto en S3 (lo crea terraform/bootstrap una sola vez).
