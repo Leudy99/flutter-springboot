@@ -208,8 +208,8 @@ resource "aws_apigatewayv2_stage" "default" {
 
   # Limite de peticiones: protege la cuenta de costes inesperados
   default_route_settings {
-    throttling_burst_limit = 20
-    throttling_rate_limit  = 10
+    throttling_burst_limit = var.api_throttle_burst
+    throttling_rate_limit  = var.api_throttle_rate
   }
 }
 
@@ -392,6 +392,8 @@ resource "aws_lambda_function" "notification" {
   environment {
     variables = {
       EMAIL_SENDER = var.email_sender
+      # Pruebas de carga: destinatarios de estos dominios no envian correo (ver lambda_function.py)
+      LOAD_TEST_DOMAINS = var.load_test_email_domains
     }
   }
 

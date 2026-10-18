@@ -31,6 +31,7 @@ class NotificationLambdaTest(unittest.TestCase):
         self.ses = FakeSes()
         lambda_function._ses = self.ses
         lambda_function.SENDER = "remitente@test.com"
+        lambda_function.LOAD_TEST_DOMAINS = {"carga.test"}
 
     def test_envia_el_correo_con_los_tres_campos(self):
         body = json.dumps({"email": "ana@test.com", "subject": "Prueba SNS", "message": "Hola"})
@@ -70,6 +71,26 @@ class NotificationLambdaTest(unittest.TestCase):
 
         with self.assertRaises(RuntimeError):
             lambda_function.lambda_handler(sqs_event(body), None)
+
+    def test_modo_de_carga_procesa_el_mensaje_pero_no_llama_a_ses(self):
+        body = json.dumps({"email": "usuario@carga.test", "subject": "Prueba", "message": "Mensaje de carga"})
+
+        lambda_function.lambda_handler(sqs_event(body), None)
+
+        self.assertEqual(self.ses.sent, [])
+
+    def test_modo_de_carga_tambien_valida_el_mensaje(self):
+        body = json.dumps({"email": "usuario@carga.test", "subject": "Prueba"})
+
+        with self.assertRaises(ValueError):
+            lambda_function.lambda_handler(sqs_event(body), None)
+
+    def test_un_correo_real_siempre_se_envia(self):
+        body = json.dumps({"email": "real@gmail.com", "subject": "S", "message": "M"})
+
+        lambda_function.lambda_handler(sqs_event(body), None)
+
+        self.assertEqual(len(self.ses.sent), 1)
 
 
 if __name__ == "__main__":

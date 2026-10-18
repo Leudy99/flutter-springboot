@@ -20,6 +20,14 @@ logger.setLevel(logging.INFO)
 # Remitente verificado en SES (lo define Terraform como variable de entorno)
 SENDER = os.environ.get("EMAIL_SENDER", "")
 
+# MODO DE CARGA: destinatarios de estos dominios (ej. "test.com") son de pruebas de carga.
+# La Lambda recibe, valida y registra el mensaje IGUAL que siempre, pero NO llama a SES.
+# Asi se puede medir SNS -> SQS -> Lambda con miles de mensajes sin enviar correos reales
+# (SES en sandbox solo permite 200 al dia). Con una direccion real el correo SI se envia.
+LOAD_TEST_DOMAINS = {
+    d.strip().lower() for d in os.environ.get("LOAD_TEST_DOMAINS", "").split(",") if d.strip()
+}
+
 REQUIRED_FIELDS = ("email", "subject", "message")
 
 _ses = None
@@ -50,6 +58,10 @@ def process_record(record):
         logger.error("Error al procesar mensaje %s: %s", record["messageId"], error)
         raise
 
+    if is_load_test(data["email"]):
+        logger.info("Modo de carga: correo NO enviado. destinatario=%s", data["email"])
+        return
+
     try:
         send_email(data["email"], data["subject"], data["message"])
     except Exception as error:
@@ -57,6 +69,11 @@ def process_record(record):
         raise
 
     logger.info("Correo enviado correctamente. destinatario=%s", data["email"])
+
+
+def is_load_test(email):
+    """True si el destinatario pertenece a un dominio de pruebas de carga."""
+    return email.rsplit("@", 1)[-1].lower() in LOAD_TEST_DOMAINS
 
 
 def parse_body(body):
