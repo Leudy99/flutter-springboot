@@ -1,0 +1,37 @@
+{
+  "scenario": "recovery-250vu",
+  "vus": 250,
+  "duration": "1m",
+  "measuredPhase": "toda la prueba",
+  "requestsAllPhases": 13750,
+  "startedAt": "2026-10-18T16:03:45.834Z",
+  "endedAt": "2026-10-18T16:04:47.649Z",
+  "testRunSeconds": 62,
+  "requests": 13749,
+  "throughputRps": 222.42,
+  "errorRate": 0.8192,
+  "latencyMs": {
+    "avg": 87.8,
+    "min": 58.8,
+    "med": 79,
+    "p90": 111.2,
+    "p95": 141.2,
+    "p99": 200.9,
+    "max": 730.2
+  },
+  "status": {
+    "ok200": 2486,
+    "throttled429": 0,
+    "errors5xx": 11263,
+    "other": 0
+  },
+  "thresholdsFailed": [],
+  "k6ExitCode": 0,
+  "queue": {
+    "peakVisible": 1917,
+    "peakInFlight": 37,
+    "dlqAtEnd": 0,
+    "secondsToDrainAfterLoad": 68,
+    "drainTimeoutSeconds": 600
+  }
+}

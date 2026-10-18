@@ -219,8 +219,8 @@ def stop_reason(r, total_requests, max_requests):
 def cmd_stress(args):
     summary, total, reason = [], 0, None
     for vus in args.levels:
-        r = run_scenario(f"stress-{vus}vu", "stress.js", {"VUS": vus, "DURATION": args.duration})
-        total += r["requests"]
+        r = run_scenario(f"stress-{vus}vu", "stress.js", {"VUS": vus})
+        total += r["requestsAllPhases"]
         reason = stop_reason(r, total, args.max_requests)
         summary.append({"vus": vus, "acceptable": reason is None, "stopReason": reason,
                         "errorRate": r["errorRate"], "p95": r["latencyMs"]["p95"],
@@ -286,6 +286,50 @@ def cmd_metrics(args):
     print(f"{len(rows)} puntos guardados en {out}")
 
 
+def insights(group, start, end, query):
+    """Consulta CloudWatch Logs Insights y devuelve las filas como diccionarios."""
+    def epoch(iso):
+        return int(datetime.fromisoformat(iso.replace("Z", "+00:00")).timestamp())
+
+    started = aws("logs", "start-query", "--log-group-name", group, "--start-time", str(epoch(start)),
+                  "--end-time", str(epoch(end)), "--query-string", query)
+    if not started:
+        return None
+    for _ in range(60):
+        data = aws("logs", "get-query-results", "--query-id", started["queryId"])
+        if data and data["status"] in ("Complete", "Failed", "Cancelled"):
+            return [{f["field"]: f["value"] for f in row if f["field"] != "@ptr"} for row in data["results"]]
+        time.sleep(2)
+    return None
+
+
+def cmd_logs(args):
+    """Analiza los logs de las dos Lambdas en una ventana: ejecuciones, duracion, arranques y errores."""
+    queries = {
+        "ejecuciones": 'filter @type="REPORT" | stats count(*) as ejecuciones, avg(@duration) as dur_prom_ms, '
+                       'pct(@duration, 95) as dur_p95_ms, max(@duration) as dur_max_ms, max(@maxMemoryUsed)/1000000 as mem_max_mb',
+        "arranques_en_frio_init": 'filter @type="REPORT" and ispresent(@initDuration) | stats count(*) as arranques, avg(@initDuration) as init_prom_ms',
+        "restauraciones_snapstart": 'filter @message like /Restore Duration/ | stats count(*) as restauraciones',
+        "errores": 'filter @message like /ERROR|Exception|Task timed out/ | stats count(*) as errores',
+        "ejecuciones_por_minuto": 'filter @type="REPORT" | stats count(*) as ejecuciones, max(@duration) as dur_max_ms by bin(1m)',
+    }
+    groups = {"lambda_principal": f"/aws/lambda/{API_FUNCTION}",
+              "notification_lambda": f"/aws/lambda/{NOTIFICATION_FUNCTION}"}
+    out = {"window": {"start": args.start, "end": args.end}}
+    for label, group in groups.items():
+        out[label] = {}
+        for qname, query in queries.items():
+            out[label][qname] = insights(group, args.start, args.end, query)
+    RESULTS.mkdir(exist_ok=True)
+    path = RESULTS / f"logs-{args.name}.json"
+    path.write_text(json.dumps(out, indent=2))
+    for label in groups:
+        print(f"[{label}]")
+        for qname in ("ejecuciones", "arranques_en_frio_init", "restauraciones_snapstart", "errores"):
+            print(f"  {qname}: {out[label][qname]}")
+    print("guardado en", path)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -295,10 +339,12 @@ def main():
     p.add_argument("--duration", default="2m")
     p.add_argument("--suffix", default="", help="sufijo del nombre, ej. -como-desplegado"); p.set_defaults(fn=cmd_progressive)
     p = sub.add_parser("stress"); p.add_argument("--levels", type=int, nargs="+", default=[100, 250, 500, 750, 1000, 1500, 2000])
-    p.add_argument("--duration", default="1m"); p.add_argument("--max-requests", type=int, default=250000)
+    p.add_argument("--duration", default="1m", help="no se usa: la duracion es rampa + sostenido"); p.add_argument("--max-requests", type=int, default=250000)
     p.set_defaults(fn=cmd_stress)
     p = sub.add_parser("recovery"); p.add_argument("--vus", type=int, default=250); p.add_argument("--duration", default="1m")
     p.add_argument("--drain-timeout", type=int, default=600); p.set_defaults(fn=cmd_recovery)
+    p = sub.add_parser("logs"); p.add_argument("--name", required=True)
+    p.add_argument("--start", required=True); p.add_argument("--end", required=True); p.set_defaults(fn=cmd_logs)
     p = sub.add_parser("metrics"); p.add_argument("--name", required=True)
     p.add_argument("--start", required=True); p.add_argument("--end", required=True); p.set_defaults(fn=cmd_metrics)
 

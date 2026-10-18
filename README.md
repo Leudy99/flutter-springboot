@@ -281,3 +281,7 @@ En **Settings → Secrets and variables → Actions**:
 | `EMAIL_SENDER` | Correo remitente de las notificaciones (se verifica en SES) |
 
 GitHub oculta estos valores en los logs (`***`) y Terraform los marca como sensibles.
+
+## Pruebas de carga
+
+Scripts K6, resultados y gráficas en [load-tests/](load-tests/README.md). Informe técnico con resultados, cuello de botella y recomendaciones: [docs/INFORME_PRUEBAS_CARGA.md](docs/INFORME_PRUEBAS_CARGA.md).

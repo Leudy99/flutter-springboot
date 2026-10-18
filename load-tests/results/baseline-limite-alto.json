@@ -1,0 +1,35 @@
+{
+  "scenario": "baseline-limite-alto",
+  "vus": 10,
+  "duration": "1m",
+  "startedAt": "2026-10-18T15:22:55.141Z",
+  "endedAt": "2026-10-18T15:23:58.663Z",
+  "testRunSeconds": 64,
+  "requests": 531,
+  "throughputRps": 8.36,
+  "errorRate": 0,
+  "latencyMs": {
+    "avg": 135.2,
+    "min": 85.4,
+    "med": 107.1,
+    "p90": 131.5,
+    "p95": 151.7,
+    "p99": 1484.8,
+    "max": 1572.4
+  },
+  "status": {
+    "ok200": 531,
+    "throttled429": 0,
+    "errors5xx": 0,
+    "other": 0
+  },
+  "thresholdsFailed": [],
+  "k6ExitCode": 0,
+  "queue": {
+    "peakVisible": 0,
+    "peakInFlight": 6,
+    "dlqAtEnd": 0,
+    "secondsToDrainAfterLoad": 14,
+    "drainTimeoutSeconds": 180
+  }
+}

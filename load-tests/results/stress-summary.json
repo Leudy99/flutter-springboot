@@ -1,0 +1,47 @@
+{
+  "levelsRun": [
+    {
+      "vus": 20,
+      "acceptable": true,
+      "stopReason": null,
+      "errorRate": 0,
+      "p95": 131.9,
+      "throughputRps": 13.35
+    },
+    {
+      "vus": 30,
+      "acceptable": true,
+      "stopReason": null,
+      "errorRate": 0,
+      "p95": 131.6,
+      "throughputRps": 20.12
+    },
+    {
+      "vus": 40,
+      "acceptable": true,
+      "stopReason": null,
+      "errorRate": 0.0159,
+      "p95": 131.8,
+      "throughputRps": 26.87
+    },
+    {
+      "vus": 50,
+      "acceptable": true,
+      "stopReason": null,
+      "errorRate": 0.0134,
+      "p95": 123.3,
+      "throughputRps": 33.65
+    },
+    {
+      "vus": 100,
+      "acceptable": false,
+      "stopReason": "mas de 5 % de errores (10.7 %)",
+      "errorRate": 0.1072,
+      "p95": 113,
+      "throughputRps": 47.58
+    }
+  ],
+  "totalRequests": 11780,
+  "stopReason": "mas de 5 % de errores (10.7 %)",
+  "maxAcceptableVus": 50
+}

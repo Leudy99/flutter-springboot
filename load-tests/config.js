@@ -22,20 +22,29 @@ const TARGET_EMAIL = __ENV.TARGET_EMAIL || 'test@test.com';
 
 // Solo se mide ESTA peticion; el login de setup() queda fuera de los resultados.
 const ENDPOINT = 'POST /notifications/send';
-const M = (metric) => `${metric}{name:${ENDPOINT}}`;
+const M = (metric, phase) => `${metric}{${phase ? `phase:${phase},` : ''}name:${ENDPOINT}}`;
+// Los contadores por codigo de estado se etiquetan con la fase (solo en la prueba de estres)
+const C = (metric, phase) => (phase ? `${metric}{phase:${phase}}` : metric);
 
 /**
  * Umbrales de K6. Los vacios solo sirven para que K6 calcule y muestre las metricas
  * de la peticion medida por separado. Con `abort` el estres se detiene solo al superar
  * los limites de la actividad (5 % de errores o P95 mayor a 5 s).
  */
-export function thresholds(abort = false) {
-  const stop = (threshold) => (abort ? [{ threshold, abortOnFail: true, delayAbortEval: '10s' }] : []);
-  return {
-    [M('http_req_duration')]: stop('p(95)<5000'),
-    [M('http_req_failed')]: stop('rate<0.05'),
-    [M('http_reqs')]: [],
+export function thresholds(abort = false, phase = '') {
+  const stop = (threshold) =>
+    abort ? [{ threshold, abortOnFail: true, delayAbortEval: '40s' }] : [];
+  const t = {
+    [M('http_req_duration', phase)]: stop('p(95)<5000'),
+    [M('http_req_failed', phase)]: stop('rate<0.05'),
+    [M('http_reqs', phase)]: [],
   };
+  if (phase) {
+    for (const name of ['status_200', 'status_429', 'status_5xx', 'status_otro']) {
+      t[C(name, phase)] = [];
+    }
+  }
+  return t;
 }
 
 // Estadisticos que se guardan de cada metrica de tiempo.
@@ -66,23 +75,24 @@ export function setupToken() {
 }
 
 /** Una iteracion de un usuario virtual: envia una notificacion y espera THINK_TIME. */
-export function sendNotification(token) {
+export function sendNotification(token, phase = '') {
+  const tags = phase ? { name: ENDPOINT, phase } : { name: ENDPOINT };
   const res = http.post(
     `${BASE_URL}/notifications/send`,
     JSON.stringify({ email: TARGET_EMAIL, subject: 'Prueba', message: 'Mensaje de carga' }),
     {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      tags: { name: ENDPOINT },
+      tags,
       timeout: '30s',
     }
   );
 
   check(res, { 'status 200': (r) => r.status === 200 });
 
-  if (res.status === 200) status200.add(1);
-  else if (res.status === 429) status429.add(1);
-  else if (res.status >= 500) status5xx.add(1);
-  else statusOtro.add(1); // incluye status 0 (timeout o conexion rechazada)
+  if (res.status === 200) status200.add(1, phase ? { phase } : {});
+  else if (res.status === 429) status429.add(1, phase ? { phase } : {});
+  else if (res.status >= 500) status5xx.add(1, phase ? { phase } : {});
+  else statusOtro.add(1, phase ? { phase } : {}); // incluye status 0 (timeout o conexion rechazada)
 
   sleep(THINK_TIME);
 }
@@ -91,15 +101,15 @@ export function sendNotification(token) {
  * Resumen de la ejecucion: se imprime en consola y se guarda en results/<nombre>.json
  * para poder comparar escenarios y construir las graficas del informe.
  */
-export function buildSummary(scenario, data, vus, duration) {
+export function buildSummary(scenario, data, vus, duration, phase = '') {
   const m = data.metrics;
   // Metricas de POST /notifications/send (sin el login de setup)
   const v = (name, key) => {
-    const metric = m[M(name)] || m[name];
+    const metric = m[M(name, phase)] || m[name];
     return metric && metric.values[key] !== undefined ? metric.values[key] : 0;
   };
   // Los contadores de estado no llevan etiqueta
-  const c = (name) => (m[name] ? m[name].values.count : 0);
+  const c = (name) => (m[C(name, phase)] ? m[C(name, phase)].values.count : 0);
 
   const end = new Date();
   const start = new Date(end.getTime() - data.state.testRunDurationMs);
@@ -108,6 +118,8 @@ export function buildSummary(scenario, data, vus, duration) {
     scenario,
     vus,
     duration,
+    measuredPhase: phase || 'toda la prueba',
+    requestsAllPhases: m.http_reqs ? m.http_reqs.values.count : 0,
     startedAt: start.toISOString(),
     endedAt: end.toISOString(),
     testRunSeconds: Math.round(data.state.testRunDurationMs / 1000),
