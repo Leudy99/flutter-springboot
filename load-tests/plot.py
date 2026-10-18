@@ -106,7 +106,49 @@ def queue_chart(name, title):
     save(fig, f"{name}-cola.png")
 
 
+def aws_chart():
+    """Concurrencia, throttling y cola SQS por minuto, desde las metricas reales de CloudWatch."""
+    import collections
+    from datetime import datetime, timezone
+
+    path = RESULTS / "aws-metrics-todo.csv"
+    if not path.exists():
+        return
+    data = collections.defaultdict(dict)
+    with open(path) as f:
+        for r in csv.DictReader(f):
+            t = datetime.fromisoformat(r["time_utc"]).astimezone(timezone.utc)
+            d, m = r["dimension"], r["metric"]
+            if "notification-lambda" in d:
+                m = "N_" + m
+            elif "flutter-springboot-api" in d:
+                m = "A_" + m
+            data[t][m] = float(r["value"])
+    times = sorted(t for t, v in data.items() if any(v.get(k, 0) for k in ("A_Invocations", "N_Invocations", "A_Throttles")))
+    if not times:
+        return
+    t0, t1 = times[0], times[-1]
+    axis = [t for t in sorted(data) if t0 <= t <= t1]
+    get = lambda k: [data[t].get(k, 0) for t in axis]  # noqa: E731
+
+    fig, axes = plt.subplots(3, 1, figsize=(10, 9), sharex=True)
+    axes[0].plot(axis, get("A_ConcurrentExecutions"), color=TEAL, label="Lambda principal")
+    axes[0].plot(axis, get("N_ConcurrentExecutions"), color=AMBER, label="Notification Lambda")
+    axes[0].axhline(10, color=RED, linestyle="--", linewidth=1, label="Cuota de la cuenta (10)")
+    style(axes[0], "Concurrencia de Lambda (maximo por minuto)", "", "Ejecuciones simultaneas")
+    axes[0].legend()
+    axes[1].plot(axis, get("A_Throttles"), color=RED, label="Lambda principal")
+    axes[1].plot(axis, get("N_Throttles"), color=AMBER, label="Notification Lambda")
+    style(axes[1], "Throttles de Lambda por minuto", "", "Throttles")
+    axes[1].legend()
+    axes[2].plot(axis, get("ApproximateNumberOfMessagesVisible"), color=TEAL, label="Visibles en SQS")
+    style(axes[2], "Mensajes acumulados en SQS (maximo por minuto)", "Hora UTC", "Mensajes")
+    axes[2].legend()
+    save(fig, "aws-concurrencia-throttles-cola.png")
+
+
 def main():
+    aws_chart()
     # Incremento progresivo: 10 (linea base con limite alto) + 50 + 100 + 250 + 500
     progressive = series("progressive", extra=("baseline-limite-alto",))
     progressive = [r for r in progressive if "como-desplegado" not in r["scenario"]]
