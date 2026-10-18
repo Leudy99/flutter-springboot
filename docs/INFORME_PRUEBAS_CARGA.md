@@ -59,8 +59,24 @@ Consultas de CloudWatch Logs Insights sobre cada ventana (`results/logs-*.json`)
 ## 4. Cuello de botella
 
 1. **Primero, API Gateway con límite 10 req/s / ráfaga 20** (config. original): con 50 VU devolvió **429** en 78 % de las peticiones. Medido y confirmado por el código de estado.
-2. **Con el límite elevado**, los rechazos pasan a ser **503** que nunca llegan al código de la Lambda. Esto apunta al **límite de concurrencia de Lambda de la cuenta (10 ejecuciones simultáneas), compartido** entre la Lambda principal y `notification-lambda`, que además se dispara por SQS y compite por el mismo cupo. Es lo coherente con: errores solo de 40 VU en adelante, latencia de las respuestas buenas estable (~100 ms), rechazos instantáneos.
-   - **Estado de la evidencia:** esta segunda parte es una **inferencia a partir de logs y códigos de estado**, no está confirmada con métricas. Falta la métrica `Throttles` / `ConcurrentExecutions` de CloudWatch: el usuario `terraform-deploy` no tiene `cloudwatch:GetMetricStatistics` (`python run.py metrics` lo documenta). Para cerrarla, el autor debe tomar capturas de CloudWatch (Lambda → Throttles y ConcurrentExecutions, API Gateway → 5xx) de las ventanas indicadas en `load-tests/README.md`, o dar el permiso `CloudWatchReadOnlyAccess`.
+2. **Con el límite elevado, la concurrencia de Lambda de la cuenta (cuota de 10 ejecuciones simultáneas).** Confirmado con métricas de CloudWatch (`results/aws-metrics-todo.csv`, `python run.py metrics`):
+   - `Throttles` de la Lambda principal **= `5xx` de API Gateway**, minuto a minuto (p. ej. 15:37 UTC: 22 253 vs 22 251; 15:36: 15 500 vs 15 500). Los 503 son rechazos por throttling de Lambda.
+   - `ConcurrentExecutions` de la Lambda principal llega a **10 y se queda en 10** en cada minuto con carga alta (cuota de la cuenta).
+   - `notification-lambda`, consumidora de SQS, también sufre throttling (hasta 254 por minuto, 15:37) y compite por el mismo cupo. SQS reintenta esos mensajes: por eso la cola crece (hasta 7408 visibles a las 15:38) y se vacía sola después.
+   - `Errors` de ambas Lambdas = 0: el fallo es de capacidad, no de código.
+   - Estrés: sin throttling hasta 30 VU (15:55–15:57); aparece en 40 VU (15:58–15:59, 1 y 34) y crece con 50 y 100 VU.
+
+   Extracto por minuto (UTC, 18-oct-2026):
+
+   | Minuto | Prueba | GW Count | GW 4xx | GW 5xx | Throttles (principal) | Conc. máx. (principal) | Throttles (consumidora) | SQS visibles máx. |
+   |---|---|---|---|---|---|---|---|---|
+   | 15:18 | 50 VU, límite 10/20 | 2798 | 2207 | 165 | 165 | 10 | 63 | 0 |
+   | 15:25 | 50 VU | 2715 | 0 | 228 | 228 | 10 | 55 | 1372 |
+   | 15:32 | 250 VU | 13793 | 0 | 10080 | 10080 | 10 | 192 | 2043 |
+   | 15:37 | 500 VU | 27811 | 0 | 22253 | 22251 | 10 | 254 | 4865 |
+   | 15:56 | estrés 30 VU | 893 | 0 | 0 | 0 | 6 | 0 | 0 |
+   | 16:00 | estrés 50 VU | 2708 | 0 | 32 | 32 | 10 | 59 | 0 |
+   | 16:04 | recuperación 250 VU | 10749 | 0 | 8789 | 8789 | 10 | 205 | 0 |
 
 SNS, SQS y SES no son el cuello de botella: SNS/SQS no perdieron mensajes y SES no entró en las pruebas de carga.
 
@@ -82,11 +98,11 @@ SNS, SQS y SES no son el cuello de botella: SNS/SQS no perdieron mensajes y SES 
 - **¿Se pierden mensajes?** No: DLQ en 0 y SNS = ejecuciones del consumidor.
 - **¿Se recupera?** Sí: la cola de 1917 mensajes se vació en 68 s tras parar la carga.
 - **¿SQS cumple su función?** Sí: absorbe el pico y lo drena después sin pérdida.
-- **Limitaciones:** K6 corre desde un PC doméstico; no se confirmó con métricas de CloudWatch (ver sección 4); no se llegó a 2000 VU porque el criterio de parada se activó en 100.
+- **Limitaciones:** K6 corre desde un PC doméstico; las métricas de CloudWatch son por minuto; no se llegó a 2000 VU porque el criterio de parada se activó en 100.
 
 ## 7. Evidencias pendientes (a cargo del autor)
 
-Capturas de consola AWS: API Gateway (4xx/5xx), Lambda (Throttles, ConcurrentExecutions), SNS, SQS (mensajes visibles) y CloudWatch Logs. Ventanas reales del 2026-10-18 (inicio–fin de K6):
+Falta adjuntar capturas de consola AWS (las métricas ya están en `results/aws-metrics-todo.csv`): API Gateway (4xx/5xx), Lambda (Throttles, ConcurrentExecutions), SNS, SQS (mensajes visibles) y CloudWatch Logs. Ventanas reales del 2026-10-18 (inicio–fin de K6):
 
 - 15:15:58–15:16:59 UTC: baseline-como-desplegado
 - 15:17:50–15:19:52 UTC: progressive-50vu-como-desplegado
