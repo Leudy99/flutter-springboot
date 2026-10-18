@@ -101,7 +101,7 @@ export function sendNotification(token, phase = '') {
  * Resumen de la ejecucion: se imprime en consola y se guarda en results/<nombre>.json
  * para poder comparar escenarios y construir las graficas del informe.
  */
-export function buildSummary(scenario, data, vus, duration, phase = '') {
+export function buildSummary(scenario, data, vus, duration, phase = '', phaseSeconds = 0) {
   const m = data.metrics;
   // Metricas de POST /notifications/send (sin el login de setup)
   const v = (name, key) => {
@@ -124,7 +124,9 @@ export function buildSummary(scenario, data, vus, duration, phase = '') {
     endedAt: end.toISOString(),
     testRunSeconds: Math.round(data.state.testRunDurationMs / 1000),
     requests: v('http_reqs', 'count'),
-    throughputRps: Number(v('http_reqs', 'rate').toFixed(2)),
+    // con fase medida, el throughput es peticiones de esa fase / duracion de esa fase
+    measuredSeconds: phaseSeconds || Math.round(data.state.testRunDurationMs / 1000),
+    throughputRps: Number((phaseSeconds ? v('http_reqs', 'count') / phaseSeconds : v('http_reqs', 'rate')).toFixed(2)),
     errorRate: Number(v('http_req_failed', 'rate').toFixed(4)),
     latencyMs: {
       avg: Number(v('http_req_duration', 'avg').toFixed(1)),

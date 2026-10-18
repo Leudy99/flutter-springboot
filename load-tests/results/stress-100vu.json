@@ -3,37 +3,36 @@
   "vus": 100,
   "duration": "20s rampa + 60s sostenido",
   "measuredPhase": "hold",
-  "requestsAllPhases": 2896,
-  "startedAt": "2026-10-18T16:01:20.657Z",
-  "endedAt": "2026-10-18T16:02:02.625Z",
-  "testRunSeconds": 42,
-  "requests": 1997,
-  "throughputRps": 47.58,
-  "errorRate": 0.1072,
+  "requestsAllPhases": 6411,
+  "startedAt": "2026-10-18T16:29:50.714Z",
+  "endedAt": "2026-10-18T16:31:14.447Z",
+  "testRunSeconds": 84,
+  "requests": 5716,
+  "throughputRps": 95.27,
+  "errorRate": 0.1403,
   "latencyMs": {
-    "avg": 93.9,
-    "min": 60.3,
-    "med": 93.6,
-    "p90": 106.2,
-    "p95": 113,
-    "p99": 128.9,
-    "max": 168
+    "avg": 96.8,
+    "min": 61.1,
+    "med": 95.9,
+    "p90": 110.8,
+    "p95": 118.7,
+    "p99": 150.4,
+    "max": 1268
   },
   "status": {
-    "ok200": 1783,
+    "ok200": 4914,
     "throttled429": 0,
-    "errors5xx": 214,
+    "errors5xx": 802,
     "other": 0
   },
-  "thresholdsFailed": [
-    "http_req_failed{phase:hold,name:POST /notifications/send}"
-  ],
-  "k6ExitCode": 99,
+  "thresholdsFailed": [],
+  "k6ExitCode": 0,
   "queue": {
-    "peakVisible": 1310,
-    "peakInFlight": 25,
+    "peakVisible": 4164,
+    "peakInFlight": 6,
     "dlqAtEnd": 0,
-    "secondsToDrainAfterLoad": 62,
+    "secondsToDrainAfterLoad": 99,
     "drainTimeoutSeconds": 180
-  }
+  },
+  "measuredSeconds": 60
 }
