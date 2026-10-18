@@ -9,6 +9,7 @@ notification_lambda_name = "notification-lambda"
 # email_sender NO va aqui: llega desde el GitHub Secret EMAIL_SENDER (TF_VAR_email_sender)
 
 # Limite de API Gateway. 10/20 es la proteccion de costes con la que se desplego.
-# Para las pruebas de carga se sube temporalmente (ver docs/INFORME_PRUEBAS_CARGA.md).
-api_throttle_rate  = 10
-api_throttle_burst = 20
+# TEMPORAL: para las pruebas de carga se sube al maximo de la cuenta (10000 req/s, rafaga 5000)
+# y al terminar se restaura a 10/20 (ver docs/INFORME_PRUEBAS_CARGA.md).
+api_throttle_rate  = 10000
+api_throttle_burst = 5000
