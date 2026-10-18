@@ -50,6 +50,26 @@ variable "notification_lambda_name" {
   default     = "notification-lambda"
 }
 
+variable "load_test_email_domains" {
+  description = "Dominios de correo de PRUEBAS DE CARGA, separados por coma. A estos destinatarios notification-lambda no les envia correo"
+  type        = string
+  default     = "test.com"
+}
+
+# --- Limite de peticiones de API Gateway (proteccion de costes) ---
+
+variable "api_throttle_rate" {
+  description = "Peticiones por segundo que acepta API Gateway; las demas reciben 429"
+  type        = number
+  default     = 10
+}
+
+variable "api_throttle_burst" {
+  description = "Rafaga maxima de peticiones de API Gateway"
+  type        = number
+  default     = 20
+}
+
 variable "email_sender" {
   description = "Correo remitente de las notificaciones (se verifica en SES). Llega desde TF_VAR_email_sender / GitHub Secret EMAIL_SENDER"
   type        = string
