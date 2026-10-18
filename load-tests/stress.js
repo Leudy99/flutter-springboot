@@ -19,6 +19,8 @@ import { setupToken, sendNotification, buildSummary, thresholds, TREND_STATS } f
 const VUS = Number(__ENV.VUS || 100);
 const RAMP_SECONDS = Number(__ENV.RAMP_SECONDS || 20);
 const HOLD_SECONDS = Number(__ENV.HOLD_SECONDS || 60);
+// ABORT=0: no abortar al cruzar los umbrales (para recorrer todos los niveles de referencia)
+const ABORT = __ENV.ABORT !== '0';
 
 export const options = {
   scenarios: {
@@ -33,7 +35,7 @@ export const options = {
     },
   },
   summaryTrendStats: TREND_STATS,
-  thresholds: thresholds(true, 'hold'), // aborta con >5 % de errores o P95 > 5 s en la fase sostenida
+  thresholds: thresholds(ABORT, 'hold'), // aborta con >5 % de errores o P95 > 5 s en la fase sostenida
 };
 
 export function setup() {

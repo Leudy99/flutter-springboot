@@ -217,19 +217,26 @@ def stop_reason(r, total_requests, max_requests):
 
 
 def cmd_stress(args):
-    summary, total, reason = [], 0, None
+    summary, total, first = [], 0, None
     for vus in args.levels:
-        r = run_scenario(f"stress-{vus}vu", "stress.js", {"VUS": vus})
+        env = {"VUS": vus}
+        if args.continue_after_degradation:
+            env["ABORT"] = "0"
+        r = run_scenario(f"stress-{vus}vu", "stress.js", env)
         total += r["requestsAllPhases"]
         reason = stop_reason(r, total, args.max_requests)
         summary.append({"vus": vus, "acceptable": reason is None, "stopReason": reason,
                         "errorRate": r["errorRate"], "p95": r["latencyMs"]["p95"],
                         "throughputRps": r["throughputRps"]})
+        if reason and first is None:
+            first = {"vus": vus, "reason": reason}
         if reason:
-            print(f"\n>>> DETENIDA en {vus} VU: {reason}", flush=True)
-            break
+            print(f"\n>>> fuera de parametros en {vus} VU: {reason}", flush=True)
+            if not args.continue_after_degradation or total >= args.max_requests:
+                break
     ok = [s["vus"] for s in summary if s["acceptable"]]
-    out = {"levelsRun": summary, "totalRequests": total, "stopReason": reason,
+    out = {"levelsRun": summary, "totalRequests": total, "firstDegradation": first,
+           "stopReason": first["reason"] if first else None,
            "maxAcceptableVus": max(ok) if ok else None}
     (RESULTS / "stress-summary.json").write_text(json.dumps(out, indent=2))
     print(json.dumps(out, indent=2))
@@ -340,6 +347,7 @@ def main():
     p.add_argument("--suffix", default="", help="sufijo del nombre, ej. -como-desplegado"); p.set_defaults(fn=cmd_progressive)
     p = sub.add_parser("stress"); p.add_argument("--levels", type=int, nargs="+", default=[100, 250, 500, 750, 1000, 1500, 2000])
     p.add_argument("--duration", default="1m", help="no se usa: la duracion es rampa + sostenido"); p.add_argument("--max-requests", type=int, default=250000)
+    p.add_argument("--continue-after-degradation", action="store_true", help="registra el primer nivel fuera de parametros pero sigue con los demas")
     p.set_defaults(fn=cmd_stress)
     p = sub.add_parser("recovery"); p.add_argument("--vus", type=int, default=250); p.add_argument("--duration", default="1m")
     p.add_argument("--drain-timeout", type=int, default=600); p.set_defaults(fn=cmd_recovery)
