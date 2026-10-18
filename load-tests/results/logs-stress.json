@@ -1,0 +1,182 @@
+{
+  "window": {
+    "start": "2026-10-18T15:50:00Z",
+    "end": "2026-10-18T16:08:00Z"
+  },
+  "lambda_principal": {
+    "ejecuciones": [
+      {
+        "ejecuciones": "14284",
+        "dur_prom_ms": "19.771",
+        "dur_p95_ms": "31.2572",
+        "dur_max_ms": "719.35",
+        "mem_max_mb": "367"
+      }
+    ],
+    "arranques_en_frio_init": [],
+    "restauraciones_snapstart": [
+      {
+        "restauraciones": "10"
+      }
+    ],
+    "errores": [],
+    "ejecuciones_por_minuto": [
+      {
+        "bin(1m)": "2026-10-18 16:04:00.000",
+        "ejecuciones": "1960",
+        "dur_max_ms": "638.85"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:03:00.000",
+        "ejecuciones": "527",
+        "dur_max_ms": "650.39"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:02:00.000",
+        "ejecuciones": "227",
+        "dur_max_ms": "66.56"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:01:00.000",
+        "ejecuciones": "2557",
+        "dur_max_ms": "110.64"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:00:00.000",
+        "ejecuciones": "2678",
+        "dur_max_ms": "85.15"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:59:00.000",
+        "ejecuciones": "1207",
+        "dur_max_ms": "719.35"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:58:00.000",
+        "ejecuciones": "1617",
+        "dur_max_ms": "334.33"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:57:00.000",
+        "ejecuciones": "1294",
+        "dur_max_ms": "104.93"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:56:00.000",
+        "ejecuciones": "894",
+        "dur_max_ms": "318.06"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:55:00.000",
+        "ejecuciones": "967",
+        "dur_max_ms": "128.63"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:54:00.000",
+        "ejecuciones": "7",
+        "dur_max_ms": "111.33"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:53:00.000",
+        "ejecuciones": "12",
+        "dur_max_ms": "377.21"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:50:00.000",
+        "ejecuciones": "378",
+        "dur_max_ms": "414.12"
+      }
+    ]
+  },
+  "notification_lambda": {
+    "ejecuciones": [
+      {
+        "ejecuciones": "14321",
+        "dur_prom_ms": "2.972",
+        "dur_p95_ms": "10.8318",
+        "dur_max_ms": "69.02",
+        "mem_max_mb": "39"
+      }
+    ],
+    "arranques_en_frio_init": [
+      {
+        "arranques": "5",
+        "init_prom_ms": "92.54"
+      }
+    ],
+    "restauraciones_snapstart": [],
+    "errores": [],
+    "ejecuciones_por_minuto": [
+      {
+        "bin(1m)": "2026-10-18 16:05:00.000",
+        "ejecuciones": "1522",
+        "dur_max_ms": "48.74"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:04:00.000",
+        "ejecuciones": "899",
+        "dur_max_ms": "23.73"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:03:00.000",
+        "ejecuciones": "65",
+        "dur_max_ms": "15.36"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:02:00.000",
+        "ejecuciones": "1754",
+        "dur_max_ms": "61.16"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:01:00.000",
+        "ejecuciones": "1070",
+        "dur_max_ms": "58.81"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:00:00.000",
+        "ejecuciones": "2638",
+        "dur_max_ms": "69.02"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:59:00.000",
+        "ejecuciones": "1220",
+        "dur_max_ms": "58.28"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:58:00.000",
+        "ejecuciones": "1601",
+        "dur_max_ms": "20.54"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:57:00.000",
+        "ejecuciones": "1294",
+        "dur_max_ms": "52.75"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:56:00.000",
+        "ejecuciones": "893",
+        "dur_max_ms": "35.36"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:55:00.000",
+        "ejecuciones": "967",
+        "dur_max_ms": "21.52"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:54:00.000",
+        "ejecuciones": "6",
+        "dur_max_ms": "11.75"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:53:00.000",
+        "ejecuciones": "11",
+        "dur_max_ms": "12.68"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:50:00.000",
+        "ejecuciones": "407",
+        "dur_max_ms": "23.3"
+      }
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "window": {
+    "start": "2026-10-18T15:36:17Z",
+    "end": "2026-10-18T15:47:30Z"
+  },
+  "lambda_principal": {
+    "ejecuciones": [
+      {
+        "ejecuciones": "11010",
+        "dur_prom_ms": "16.8041",
+        "dur_p95_ms": "26.2312",
+        "dur_max_ms": "156.91",
+        "mem_max_mb": "367"
+      }
+    ],
+    "arranques_en_frio_init": [],
+    "restauraciones_snapstart": [],
+    "errores": [],
+    "ejecuciones_por_minuto": [
+      {
+        "bin(1m)": "2026-10-18 15:38:00.000",
+        "ejecuciones": "1785",
+        "dur_max_ms": "116.3"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:37:00.000",
+        "ejecuciones": "5558",
+        "dur_max_ms": "156.91"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:36:00.000",
+        "ejecuciones": "3667",
+        "dur_max_ms": "109.35"
+      }
+    ]
+  },
+  "notification_lambda": {
+    "ejecuciones": [
+      {
+        "ejecuciones": "11009",
+        "dur_prom_ms": "3.5598",
+        "dur_p95_ms": "12.2802",
+        "dur_max_ms": "39.73",
+        "mem_max_mb": "94"
+      }
+    ],
+    "arranques_en_frio_init": [
+      {
+        "arranques": "1",
+        "init_prom_ms": "115.18"
+      }
+    ],
+    "restauraciones_snapstart": [],
+    "errores": [],
+    "ejecuciones_por_minuto": [
+      {
+        "bin(1m)": "2026-10-18 15:41:00.000",
+        "ejecuciones": "1327",
+        "dur_max_ms": "35.94"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:40:00.000",
+        "ejecuciones": "3895",
+        "dur_max_ms": "39.73"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:39:00.000",
+        "ejecuciones": "3402",
+        "dur_max_ms": "21.29"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:38:00.000",
+        "ejecuciones": "2243",
+        "dur_max_ms": "26.21"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:37:00.000",
+        "ejecuciones": "89",
+        "dur_max_ms": "17.23"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:36:00.000",
+        "ejecuciones": "53",
+        "dur_max_ms": "9.4"
+      }
+    ]
+  }
+}

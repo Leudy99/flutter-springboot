@@ -1,0 +1,78 @@
+{
+  "window": {
+    "start": "2026-10-18T15:31:35Z",
+    "end": "2026-10-18T15:36:10Z"
+  },
+  "lambda_principal": {
+    "ejecuciones": [
+      {
+        "ejecuciones": "8175",
+        "dur_prom_ms": "17.6651",
+        "dur_p95_ms": "27.2974",
+        "dur_max_ms": "335.64",
+        "mem_max_mb": "366"
+      }
+    ],
+    "arranques_en_frio_init": [],
+    "restauraciones_snapstart": [],
+    "errores": [],
+    "ejecuciones_por_minuto": [
+      {
+        "bin(1m)": "2026-10-18 15:33:00.000",
+        "ejecuciones": "2957",
+        "dur_max_ms": "111.61"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:32:00.000",
+        "ejecuciones": "3713",
+        "dur_max_ms": "103.81"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:31:00.000",
+        "ejecuciones": "1505",
+        "dur_max_ms": "335.64"
+      }
+    ]
+  },
+  "notification_lambda": {
+    "ejecuciones": [
+      {
+        "ejecuciones": "8174",
+        "dur_prom_ms": "3.5244",
+        "dur_p95_ms": "12.0868",
+        "dur_max_ms": "59.94",
+        "mem_max_mb": "94"
+      }
+    ],
+    "arranques_en_frio_init": [],
+    "restauraciones_snapstart": [],
+    "errores": [],
+    "ejecuciones_por_minuto": [
+      {
+        "bin(1m)": "2026-10-18 15:35:00.000",
+        "ejecuciones": "2537",
+        "dur_max_ms": "32.2"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:34:00.000",
+        "ejecuciones": "3907",
+        "dur_max_ms": "59.94"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:33:00.000",
+        "ejecuciones": "1328",
+        "dur_max_ms": "28.55"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:32:00.000",
+        "ejecuciones": "293",
+        "dur_max_ms": "14.74"
+      },
+      {
+        "bin(1m)": "2026-10-18 15:31:00.000",
+        "ejecuciones": "109",
+        "dur_max_ms": "17.89"
+      }
+    ]
+  }
+}
