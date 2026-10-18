@@ -1,47 +1,67 @@
 {
   "levelsRun": [
     {
-      "vus": 20,
-      "acceptable": true,
-      "stopReason": null,
-      "errorRate": 0,
-      "p95": 131.9,
-      "throughputRps": 13.35
-    },
-    {
-      "vus": 30,
-      "acceptable": true,
-      "stopReason": null,
-      "errorRate": 0,
-      "p95": 131.6,
-      "throughputRps": 20.12
-    },
-    {
-      "vus": 40,
-      "acceptable": true,
-      "stopReason": null,
-      "errorRate": 0.0159,
-      "p95": 131.8,
-      "throughputRps": 26.87
-    },
-    {
-      "vus": 50,
-      "acceptable": true,
-      "stopReason": null,
-      "errorRate": 0.0134,
-      "p95": 123.3,
-      "throughputRps": 33.65
-    },
-    {
       "vus": 100,
       "acceptable": false,
-      "stopReason": "mas de 5 % de errores (10.7 %)",
-      "errorRate": 0.1072,
-      "p95": 113,
-      "throughputRps": 47.58
+      "stopReason": "mas de 5 % de errores (14.0 %)",
+      "errorRate": 0.1403,
+      "p95": 118.7,
+      "throughputRps": 68.26
+    },
+    {
+      "vus": 250,
+      "acceptable": false,
+      "stopReason": "mas de 5 % de errores (59.4 %)",
+      "errorRate": 0.5937,
+      "p95": 107.1,
+      "throughputRps": 170.74
+    },
+    {
+      "vus": 500,
+      "acceptable": false,
+      "stopReason": "mas de 5 % de errores (80.9 %)",
+      "errorRate": 0.809,
+      "p95": 105.1,
+      "throughputRps": 342.93
+    },
+    {
+      "vus": 750,
+      "acceptable": false,
+      "stopReason": "mas de 5 % de errores (86.3 %)",
+      "errorRate": 0.8629,
+      "p95": 96.6,
+      "throughputRps": 515.68
+    },
+    {
+      "vus": 1000,
+      "acceptable": false,
+      "stopReason": "mas de 5 % de errores (89.8 %)",
+      "errorRate": 0.898,
+      "p95": 99.3,
+      "throughputRps": 688.42
+    },
+    {
+      "vus": 1500,
+      "acceptable": false,
+      "stopReason": "mas de 5 % de errores (93.3 %)",
+      "errorRate": 0.9329,
+      "p95": 106.3,
+      "throughputRps": 1029.64
+    },
+    {
+      "vus": 2000,
+      "acceptable": false,
+      "stopReason": "mas de 5 % de errores (95.3 %)",
+      "errorRate": 0.9526,
+      "p95": 125.8,
+      "throughputRps": 1367.94
     }
   ],
-  "totalRequests": 11780,
-  "stopReason": "mas de 5 % de errores (10.7 %)",
-  "maxAcceptableVus": 50
+  "totalRequests": 396819,
+  "firstDegradation": {
+    "vus": 100,
+    "reason": "mas de 5 % de errores (14.0 %)"
+  },
+  "stopReason": "mas de 5 % de errores (14.0 %)",
+  "maxAcceptableVus": null
 }

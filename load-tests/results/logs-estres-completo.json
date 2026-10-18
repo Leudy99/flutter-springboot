@@ -1,0 +1,257 @@
+{
+  "window": {
+    "start": "2026-10-18T16:25:00Z",
+    "end": "2026-10-18T17:00:00Z"
+  },
+  "lambda_principal": {
+    "ejecuciones": [
+      {
+        "ejecuciones": "49572",
+        "dur_prom_ms": "17.068",
+        "dur_p95_ms": "26.2312",
+        "dur_max_ms": "1080.84",
+        "mem_max_mb": "369"
+      }
+    ],
+    "arranques_en_frio_init": [],
+    "restauraciones_snapstart": [
+      {
+        "restauraciones": "20"
+      }
+    ],
+    "errores": [],
+    "ejecuciones_por_minuto": [
+      {
+        "bin(1m)": "2026-10-18 16:52:00.000",
+        "ejecuciones": "5077",
+        "dur_max_ms": "100.69"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:51:00.000",
+        "ejecuciones": "2171",
+        "dur_max_ms": "317.92"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:48:00.000",
+        "ejecuciones": "5184",
+        "dur_max_ms": "113.94"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:47:00.000",
+        "ejecuciones": "2320",
+        "dur_max_ms": "107.02"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:45:00.000",
+        "ejecuciones": "6",
+        "dur_max_ms": "68.87"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:44:00.000",
+        "ejecuciones": "5683",
+        "dur_max_ms": "92.65"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:43:00.000",
+        "ejecuciones": "1910",
+        "dur_max_ms": "316.99"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:41:00.000",
+        "ejecuciones": "2636",
+        "dur_max_ms": "264.28"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:40:00.000",
+        "ejecuciones": "4852",
+        "dur_max_ms": "110.5"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:37:00.000",
+        "ejecuciones": "4805",
+        "dur_max_ms": "103.69"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:36:00.000",
+        "ejecuciones": "2257",
+        "dur_max_ms": "335.66"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:34:00.000",
+        "ejecuciones": "2009",
+        "dur_max_ms": "111.14"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:33:00.000",
+        "ejecuciones": "5102",
+        "dur_max_ms": "148.21"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:31:00.000",
+        "ejecuciones": "954",
+        "dur_max_ms": "99.26"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:30:00.000",
+        "ejecuciones": "4505",
+        "dur_max_ms": "648.01"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:29:00.000",
+        "ejecuciones": "101",
+        "dur_max_ms": "1080.84"
+      }
+    ]
+  },
+  "notification_lambda": {
+    "ejecuciones": [
+      {
+        "ejecuciones": "48839",
+        "dur_prom_ms": "2.4958",
+        "dur_p95_ms": "9.5259",
+        "dur_max_ms": "69.99",
+        "mem_max_mb": "39"
+      }
+    ],
+    "arranques_en_frio_init": [
+      {
+        "arranques": "10",
+        "init_prom_ms": "93.594"
+      }
+    ],
+    "restauraciones_snapstart": [],
+    "errores": [],
+    "ejecuciones_por_minuto": [
+      {
+        "bin(1m)": "2026-10-18 16:54:00.000",
+        "ejecuciones": "3046",
+        "dur_max_ms": "20.69"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:53:00.000",
+        "ejecuciones": "3171",
+        "dur_max_ms": "39.4"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:52:00.000",
+        "ejecuciones": "26",
+        "dur_max_ms": "20.16"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:51:00.000",
+        "ejecuciones": "182",
+        "dur_max_ms": "17.55"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:50:00.000",
+        "ejecuciones": "3786",
+        "dur_max_ms": "28.13"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:49:00.000",
+        "ejecuciones": "3344",
+        "dur_max_ms": "20.44"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:48:00.000",
+        "ejecuciones": "157",
+        "dur_max_ms": "18.27"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:47:00.000",
+        "ejecuciones": "131",
+        "dur_max_ms": "14.7"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:46:00.000",
+        "ejecuciones": "3771",
+        "dur_max_ms": "34.4"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:45:00.000",
+        "ejecuciones": "3659",
+        "dur_max_ms": "20.61"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:44:00.000",
+        "ejecuciones": "29",
+        "dur_max_ms": "2.32"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:43:00.000",
+        "ejecuciones": "1077",
+        "dur_max_ms": "32.35"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:42:00.000",
+        "ejecuciones": "4044",
+        "dur_max_ms": "19.77"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:41:00.000",
+        "ejecuciones": "2321",
+        "dur_max_ms": "15.92"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:40:00.000",
+        "ejecuciones": "159",
+        "dur_max_ms": "5.95"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:39:00.000",
+        "ejecuciones": "2627",
+        "dur_max_ms": "63.33"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:38:00.000",
+        "ejecuciones": "3891",
+        "dur_max_ms": "69.99"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:37:00.000",
+        "ejecuciones": "360",
+        "dur_max_ms": "35.1"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:36:00.000",
+        "ejecuciones": "616",
+        "dur_max_ms": "15.57"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:35:00.000",
+        "ejecuciones": "3562",
+        "dur_max_ms": "19.14"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:34:00.000",
+        "ejecuciones": "2691",
+        "dur_max_ms": "20.24"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:33:00.000",
+        "ejecuciones": "424",
+        "dur_max_ms": "14.64"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:32:00.000",
+        "ejecuciones": "1005",
+        "dur_max_ms": "53.4"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:31:00.000",
+        "ejecuciones": "3441",
+        "dur_max_ms": "18.05"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:30:00.000",
+        "ejecuciones": "1013",
+        "dur_max_ms": "25.23"
+      },
+      {
+        "bin(1m)": "2026-10-18 16:29:00.000",
+        "ejecuciones": "100",
+        "dur_max_ms": "11.91"
+      }
+    ]
+  }
+}

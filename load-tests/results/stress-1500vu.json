@@ -1,0 +1,38 @@
+{
+  "scenario": "stress-1500vu",
+  "vus": 1500,
+  "duration": "20s rampa + 60s sostenido",
+  "measuredPhase": "hold",
+  "requestsAllPhases": 97763,
+  "startedAt": "2026-10-18T16:47:35.210Z",
+  "endedAt": "2026-10-18T16:48:56.740Z",
+  "testRunSeconds": 82,
+  "requests": 83946,
+  "throughputRps": 1399.1,
+  "errorRate": 0.9329,
+  "latencyMs": {
+    "avg": 79.3,
+    "min": 58.8,
+    "med": 75.2,
+    "p90": 95.4,
+    "p95": 106.3,
+    "p99": 141.3,
+    "max": 234.7
+  },
+  "status": {
+    "ok200": 5634,
+    "throttled429": 0,
+    "errors5xx": 78312,
+    "other": 0
+  },
+  "thresholdsFailed": [],
+  "k6ExitCode": 0,
+  "queue": {
+    "peakVisible": 7248,
+    "peakInFlight": 31,
+    "dlqAtEnd": 0,
+    "secondsToDrainAfterLoad": 152,
+    "drainTimeoutSeconds": 180
+  },
+  "measuredSeconds": 60
+}

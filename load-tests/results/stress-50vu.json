@@ -8,7 +8,7 @@
   "endedAt": "2026-10-18T16:01:04.394Z",
   "testRunSeconds": 82,
   "requests": 2754,
-  "throughputRps": 33.65,
+  "throughputRps": 45.9,
   "errorRate": 0.0134,
   "latencyMs": {
     "avg": 100.8,
@@ -33,5 +33,6 @@
     "dlqAtEnd": 0,
     "secondsToDrainAfterLoad": 8,
     "drainTimeoutSeconds": 180
-  }
+  },
+  "measuredSeconds": 60
 }

@@ -71,7 +71,7 @@ def load_charts(rows, prefix, label):
 
     fig, ax = plt.subplots(figsize=(7, 4))
     ax.plot(users, [r["throughputRps"] for r in rows], "o-", color=TEAL, label="Todas las respuestas")
-    ax.plot(users, [r["status"]["ok200"] / max(r["testRunSeconds"], 1) for r in rows], "s--", color=INK,
+    ax.plot(users, [r["status"]["ok200"] / max(r.get("measuredSeconds", r["testRunSeconds"]), 1) for r in rows], "s--", color=INK,
             label="Solo respuestas 200")
     style(ax, f"Throughput vs usuarios ({label})", "Usuarios virtuales", "Peticiones por segundo")
     ax.legend()
@@ -111,12 +111,13 @@ def aws_chart():
     import collections
     from datetime import datetime, timezone
 
-    path = RESULTS / "aws-metrics-todo.csv"
-    if not path.exists():
+    paths = sorted(RESULTS.glob("aws-metrics-*.csv"))
+    if not paths:
         return
     data = collections.defaultdict(dict)
-    with open(path) as f:
-        for r in csv.DictReader(f):
+    rows = [r for path in paths for r in csv.DictReader(open(path))]
+    if True:
+        for r in rows:
             t = datetime.fromisoformat(r["time_utc"]).astimezone(timezone.utc)
             d, m = r["dimension"], r["metric"]
             if "notification-lambda" in d:

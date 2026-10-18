@@ -48,5 +48,5 @@ export default function (data) {
 }
 
 export function handleSummary(data) {
-  return buildSummary(`stress-${VUS}vu`, data, VUS, `${RAMP_SECONDS}s rampa + ${HOLD_SECONDS}s sostenido`, 'hold');
+  return buildSummary(`stress-${VUS}vu`, data, VUS, `${RAMP_SECONDS}s rampa + ${HOLD_SECONDS}s sostenido`, 'hold', HOLD_SECONDS);
 }
