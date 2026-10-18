@@ -15,11 +15,11 @@ Endpoint bajo prueba: `POST /notifications/send` (requiere JWT).
 | `config.js` | URL, login, la petición medida, estadísticos y formato del resultado |
 | `baseline.js` | Línea base: 10 usuarios virtuales, 1 minuto |
 | `progressive.js` | Un nivel de carga por ejecución (50, 100, 250, 500 usuarios, 2 min) |
-| `stress.js` | Un nivel de estrés por ejecución; aborta con más de 5 % de errores o P95 > 5 s |
+| `stress.js` | Un nivel de estrés por ejecución (20 s de rampa + 60 s sostenido); aborta con más de 5 % de errores o P95 > 5 s en la fase sostenida |
 | `recovery.js` | Carga alta que luego se detiene para medir la recuperación |
 | `run.py` | Driver: lanza K6, muestrea la cola SQS, mide el vaciado y aplica los criterios de parada |
 | `plot.py` | Gráficas a partir de los resultados reales (`results/charts/`) |
-| `results/` | Resultados de cada ejecución: `*.json` (K6), `*-queue.csv` (cola SQS) y gráficas |
+| `results/` | Resultados de cada ejecución: `*.json` (K6), `*-queue.csv` (cola SQS), `logs-*.json` (Logs Insights), `aws-metrics-*.csv` (métricas de CloudWatch) y `charts/` |
 
 ## Configuración de las pruebas
 
@@ -39,7 +39,7 @@ export K6_PASSWORD=...        # contraseña del usuario de pruebas (no se guarda
 
 python run.py baseline --name baseline
 python run.py progressive --levels 50 100 250 500
-python run.py stress --levels 100 250 500 750 1000 1500 2000
+python run.py stress --levels 20 30 40 50 100 250 500 750 1000 1500 2000   # se detiene en el primer nivel fuera de parámetros
 python run.py recovery --vus 250
 python plot.py
 ```
