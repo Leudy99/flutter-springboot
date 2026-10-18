@@ -1,0 +1,35 @@
+{
+  "scenario": "progressive-50vu-como-desplegado",
+  "vus": 50,
+  "duration": "2m",
+  "startedAt": "2026-10-18T15:17:50.654Z",
+  "endedAt": "2026-10-18T15:19:52.471Z",
+  "testRunSeconds": 122,
+  "requests": 5579,
+  "throughputRps": 45.8,
+  "errorRate": 0.819,
+  "latencyMs": {
+    "avg": 79.3,
+    "min": 57.6,
+    "med": 72.3,
+    "p90": 105.3,
+    "p95": 114,
+    "p99": 133.3,
+    "max": 841.1
+  },
+  "status": {
+    "ok200": 1010,
+    "throttled429": 4338,
+    "errors5xx": 231,
+    "other": 0
+  },
+  "thresholdsFailed": [],
+  "k6ExitCode": 0,
+  "queue": {
+    "peakVisible": 0,
+    "peakInFlight": 8,
+    "dlqAtEnd": 0,
+    "secondsToDrainAfterLoad": 2,
+    "drainTimeoutSeconds": 180
+  }
+}

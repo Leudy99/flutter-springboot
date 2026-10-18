@@ -1,0 +1,35 @@
+{
+  "scenario": "baseline-como-desplegado",
+  "vus": 10,
+  "duration": "1m",
+  "startedAt": "2026-10-18T15:15:58.284Z",
+  "endedAt": "2026-10-18T15:16:59.801Z",
+  "testRunSeconds": 62,
+  "requests": 533,
+  "throughputRps": 8.66,
+  "errorRate": 0,
+  "latencyMs": {
+    "avg": 131,
+    "min": 86.4,
+    "med": 108.8,
+    "p90": 130.8,
+    "p95": 156.4,
+    "p99": 1156.9,
+    "max": 1682.4
+  },
+  "status": {
+    "ok200": 533,
+    "throttled429": 0,
+    "errors5xx": 0,
+    "other": 0
+  },
+  "thresholdsFailed": [],
+  "k6ExitCode": 0,
+  "queue": {
+    "peakVisible": 0,
+    "peakInFlight": 1,
+    "dlqAtEnd": 0,
+    "secondsToDrainAfterLoad": 2,
+    "drainTimeoutSeconds": 180
+  }
+}
