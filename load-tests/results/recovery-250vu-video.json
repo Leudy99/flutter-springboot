@@ -1,0 +1,38 @@
+{
+  "scenario": "recovery-250vu-video",
+  "vus": 250,
+  "duration": "1m",
+  "measuredPhase": "toda la prueba",
+  "requestsAllPhases": 13537,
+  "startedAt": "2026-10-20T16:27:15.081Z",
+  "endedAt": "2026-10-20T16:28:16.799Z",
+  "testRunSeconds": 62,
+  "requests": 13536,
+  "measuredSeconds": 62,
+  "throughputRps": 219.32,
+  "errorRate": 0.6408,
+  "latencyMs": {
+    "avg": 112.8,
+    "min": 65.6,
+    "med": 96,
+    "p90": 131.9,
+    "p95": 174.8,
+    "p99": 546,
+    "max": 2337.4
+  },
+  "status": {
+    "ok200": 4862,
+    "throttled429": 0,
+    "errors5xx": 8674,
+    "other": 0
+  },
+  "thresholdsFailed": [],
+  "k6ExitCode": 0,
+  "queue": {
+    "peakVisible": 4250,
+    "peakInFlight": 9,
+    "dlqAtEnd": 0,
+    "secondsToDrainAfterLoad": 82,
+    "drainTimeoutSeconds": 600
+  }
+}

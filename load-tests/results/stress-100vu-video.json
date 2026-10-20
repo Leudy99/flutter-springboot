@@ -1,0 +1,38 @@
+{
+  "scenario": "stress-100vu-video",
+  "vus": 100,
+  "duration": "20s rampa + 60s sostenido",
+  "measuredPhase": "hold",
+  "requestsAllPhases": 6324,
+  "startedAt": "2026-10-20T16:16:27.735Z",
+  "endedAt": "2026-10-20T16:17:49.575Z",
+  "testRunSeconds": 82,
+  "requests": 5477,
+  "measuredSeconds": 60,
+  "throughputRps": 91.28,
+  "errorRate": 0.3272,
+  "latencyMs": {
+    "avg": 108.8,
+    "min": 67.5,
+    "med": 103.4,
+    "p90": 133.7,
+    "p95": 146.3,
+    "p99": 264.3,
+    "max": 602.8
+  },
+  "status": {
+    "ok200": 3685,
+    "throttled429": 0,
+    "errors5xx": 1792,
+    "other": 0
+  },
+  "thresholdsFailed": [],
+  "k6ExitCode": 0,
+  "queue": {
+    "peakVisible": 3258,
+    "peakInFlight": 11,
+    "dlqAtEnd": 0,
+    "secondsToDrainAfterLoad": 93,
+    "drainTimeoutSeconds": 180
+  }
+}
