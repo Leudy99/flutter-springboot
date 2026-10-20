@@ -243,7 +243,7 @@ def cmd_stress(args):
 
 
 def cmd_recovery(args):
-    run_scenario(f"recovery-{args.vus}vu", "recovery.js", {"VUS": args.vus, "DURATION": args.duration},
+    run_scenario(f"recovery-{args.vus}vu{args.suffix}", "recovery.js", {"VUS": args.vus, "DURATION": args.duration},
                  drain_timeout=args.drain_timeout)
 
 
@@ -351,7 +351,8 @@ def main():
     p.add_argument("--continue-after-degradation", action="store_true", help="registra el primer nivel fuera de parametros pero sigue con los demas")
     p.set_defaults(fn=cmd_stress)
     p = sub.add_parser("recovery"); p.add_argument("--vus", type=int, default=250); p.add_argument("--duration", default="1m")
-    p.add_argument("--drain-timeout", type=int, default=600); p.set_defaults(fn=cmd_recovery)
+    p.add_argument("--drain-timeout", type=int, default=600)
+    p.add_argument("--suffix", default="", help="sufijo del nombre, ej. -video"); p.set_defaults(fn=cmd_recovery)
     p = sub.add_parser("logs"); p.add_argument("--name", required=True)
     p.add_argument("--start", required=True); p.add_argument("--end", required=True); p.set_defaults(fn=cmd_logs)
     p = sub.add_parser("metrics"); p.add_argument("--name", required=True)

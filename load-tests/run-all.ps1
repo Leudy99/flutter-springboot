@@ -28,7 +28,7 @@ function Step($titulo, $comando) {
 Step "ACTIVIDAD 1 - Linea base (10 usuarios, 1 min)"        "python run.py baseline --name video-baseline"
 Step "ACTIVIDAD 2 - Incremento progresivo (50, 100, 250 y 500 usuarios, 2 min c/u)" "python run.py progressive --levels 50 100 250 500 --suffix=-video"
 Step "ACTIVIDAD 4 - Prueba de estres (20, 50, 100, 250 y 500 usuarios)"          "python run.py stress --levels 20 50 100 250 500 --suffix=-video --continue-after-degradation --max-requests 150000"
-Step "ACTIVIDAD 5 - Recuperacion (250 usuarios, luego se detiene)"        "python run.py recovery --vus 250"
+Step "ACTIVIDAD 5 - Recuperacion (250 usuarios, luego se detiene)"        "python run.py recovery --vus 250 --suffix=-video"
 
 $fin = (Get-Date).ToUniversalTime()
 Write-Host ""
