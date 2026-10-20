@@ -1,5 +1,7 @@
 # Informe técnico: pruebas de carga y rendimiento
 
+**Fecha de las pruebas principales: domingo 18 de octubre de 2026** (secciones 1 a 12). La sección 13 es una repetición posterior, del 20 de octubre de 2026.
+
 Todos los números salen de ejecuciones reales guardadas en `load-tests/results/` (K6, logs de CloudWatch y métricas de CloudWatch). No hay valores estimados.
 
 ## 1. Arquitectura evaluada
