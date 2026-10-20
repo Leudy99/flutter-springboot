@@ -4,6 +4,7 @@
 
 # Los resultados del video llevan sufijo -video: NO pisan los resultados del informe.
 $ErrorActionPreference = "Stop"
+$inicio = (Get-Date).ToUniversalTime()
 Set-Location $PSScriptRoot
 
 if (-not $env:K6_EMAIL)    { $env:K6_EMAIL = Read-Host "K6_EMAIL" }
@@ -25,10 +26,13 @@ function Step($titulo, $comando) {
 }
 
 Step "ACTIVIDAD 1 - Linea base (10 usuarios, 1 min)"        "python run.py baseline --name video-baseline"
-Step "ACTIVIDAD 2 - Incremento progresivo (50 y 100 usuarios, 2 min c/u)" "python run.py progressive --levels 50 100 --suffix=-video"
-Step "ACTIVIDAD 4 - Prueba de estres (20, 40, 50, 100 usuarios)"          "python run.py stress --levels 20 40 50 100 --suffix=-video --continue-after-degradation --max-requests 40000"
-Step "ACTIVIDAD 5 - Recuperacion (100 usuarios, luego se detiene)"        "python run.py recovery --vus 100"
+Step "ACTIVIDAD 2 - Incremento progresivo (50, 100, 250 y 500 usuarios, 2 min c/u)" "python run.py progressive --levels 50 100 250 500 --suffix=-video"
+Step "ACTIVIDAD 4 - Prueba de estres (20, 50, 100, 250 y 500 usuarios)"          "python run.py stress --levels 20 50 100 250 500 --suffix=-video --continue-after-degradation --max-requests 150000"
+Step "ACTIVIDAD 5 - Recuperacion (250 usuarios, luego se detiene)"        "python run.py recovery --vus 250"
 
+$fin = (Get-Date).ToUniversalTime()
 Write-Host ""
+Write-Host "VENTANA DE LAS PRUEBAS (para el selector de tiempo de CloudWatch):" -ForegroundColor Yellow
+Write-Host "  Inicio: $($inicio.ToString('yyyy-MM-dd HH:mm:ss')) UTC   Fin: $($fin.ToString('yyyy-MM-dd HH:mm:ss')) UTC" -ForegroundColor Yellow
 Write-Host "TERMINADO. Resultados en load-tests\results\" -ForegroundColor Green
 Write-Host "Espera 1-2 min y refresca las pestanas de CloudWatch (actividad 3)." -ForegroundColor Green
