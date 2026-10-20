@@ -222,3 +222,43 @@ Con 250 VU durante 1 min (16:03:45 a 16:04:47 UTC) hubo 8789 throttles de la Lam
 - 15:59:42–16:01:04 UTC: stress-50vu
 - 16:01:20–16:02:02 UTC: stress-100vu
 - 16:03:45–16:04:47 UTC: recovery-250vu
+
+## 13. Corrida de verificación (20 de octubre de 2026)
+
+Para grabar el video se repitió la batería de pruebas con `load-tests/run-all.ps1` (11:41 a 12:30 hora local de la PC, UTC-4; 15:41 a 16:30 UTC), con el límite de API Gateway elevado temporalmente y restaurado después. Es una segunda medición independiente, con resultados guardados con el sufijo `-video` (`results/*-video.json`, `results/aws-metrics-video.csv`). Sirve para comprobar que las conclusiones se repiten.
+
+| Escenario | Throughput (req/s) | Lat. prom. (ms) | Mín. (ms) | Máx. (ms) | P95 (ms) | P99 (ms) | Error rate | Cola: pico / vaciado |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| Línea base, 10 VU, 1 min | 7,8 | 209 | 87 | 2472 | 467 | 2206 | 0 % | 0 / 8 s |
+| Progresivo 50 VU, 2 min | 43,1 | 145 | 74 | 2561 | 234 | 567 | 13,2 % | 1879 / 69 s |
+| Progresivo 100 VU | 88,2 | 119 | 68 | 1288 | 173 | 324 | 38,8 % | 5882 / 117 s |
+| Progresivo 250 VU | 214,9 | 123 | 65 | 1838 | 202 | 453 | 79,7 % | 4830 / 118 s |
+| Progresivo 500 VU | 430,5 | 144 | 66 | 1664 | 259 | 369 | 83,5 % | 8367 / no se vació en 180 s |
+| Estrés 20 VU (sostenido) | 18,2 | 116 | 85 | 413 | 148 | 259 | 0 % | 119 / 2 s |
+| Estrés 50 VU | 44,9 | 121 | 71 | 676 | 173 | 363 | 3,3 % | 447 / 33 s |
+| Estrés 100 VU | 91,3 | 109 | 68 | 603 | 146 | 264 | 32,7 % | 3258 / 93 s |
+| Estrés 250 VU | 226,1 | 111 | 64 | 2498 | 175 | 472 | 57,5 % | 6708 / 119 s |
+| Estrés 500 VU | 446,2 | 134 | 65 | 1217 | 354 | 519 | 80,1 % | 6155 / 144 s |
+| Recuperación 250 VU, 1 min | 219,3 | 113 | 66 | 2337 | 175 | 546 | 64,1 % | 4250 / 82 s |
+
+Métricas de CloudWatch de la ventana completa:
+
+| Métrica | Total |
+|---|---:|
+| API Gateway Count / 5xx / 4xx | 166 587 / 112 980 / 0 |
+| Lambda principal: Invocations / Errors / Throttles | 53 607 / 0 / 112 980 |
+| SNS NumberOfMessagesPublished | 53 596 |
+| SQS NumberOfMessagesSent | 53 596 |
+| Notification Lambda: Invocations / Errors / Throttles | 53 596 / 0 / 3930 |
+| Concurrencia máxima por minuto: Lambda principal / Notification Lambda | 10 / 7 |
+| SQS ApproximateNumberOfMessagesVisible (máximo por minuto) | 6222 |
+
+**Qué confirma**
+
+- **Misma conclusión de cuello de botella:** los throttles de la Lambda principal (112 980) vuelven a ser iguales a los 5xx de API Gateway, la concurrencia vuelve a quedarse en 10 y los Errors siguen en 0.
+- **Sin pérdida de mensajes:** SNS publicó 53 596, SQS recibió 53 596 y la Notification Lambda ejecutó 53 596. DLQ en 0 en todos los escenarios.
+- **Máximo de usuarios soportados:** 50 VU de nuevo quedó por debajo del 5 % de errores (3,3 %) y 100 VU lo superó (32,7 %).
+- **Latencia plana:** promedio entre 109 y 209 ms, P95 entre 146 y 467 ms; el P99 alto de la línea base (2,2 s) son las primeras peticiones tras un periodo de inactividad.
+- **SQS:** en el progresivo de 500 VU la cola no se vació en los 180 s de espera (llegó a 8367 mensajes según el muestreo de K6, cada 5 s) y se vació después sin perder mensajes. CloudWatch muestra un máximo de 6222 porque promedia por minuto.
+
+**Diferencias con la corrida principal (variación normal entre ejecuciones):** el porcentaje de errores varía entre corridas (por ejemplo, estrés a 100 VU: 14,0 % en la principal y 32,7 % en esta; a 50 VU: 1,3 % y 3,3 %). El límite de concurrencia de la cuenta es el mismo, pero cuánto del cupo de 10 lo usa cada Lambda en cada instante depende del momento, por eso las cifras exactas cambian, pero no el comportamiento: sin errores hasta 20 a 30 VU, primeros errores en 50 VU, degradación fuerte desde 100 VU y respuestas 200 que no crecen con los usuarios (en los niveles de estrés de 250 y 500 VU, de 89 a 96 por segundo). Para citar un valor único se usa la corrida principal (secciones 4 a 11), y esta sección se presenta como repetición que confirma la tendencia.
