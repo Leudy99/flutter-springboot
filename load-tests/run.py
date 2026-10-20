@@ -222,7 +222,7 @@ def cmd_stress(args):
         env = {"VUS": vus}
         if args.continue_after_degradation:
             env["ABORT"] = "0"
-        r = run_scenario(f"stress-{vus}vu", "stress.js", env)
+        r = run_scenario(f"stress-{vus}vu{args.suffix}", "stress.js", env)
         total += r["requestsAllPhases"]
         reason = stop_reason(r, total, args.max_requests)
         summary.append({"vus": vus, "acceptable": reason is None, "stopReason": reason,
@@ -238,7 +238,7 @@ def cmd_stress(args):
     out = {"levelsRun": summary, "totalRequests": total, "firstDegradation": first,
            "stopReason": first["reason"] if first else None,
            "maxAcceptableVus": max(ok) if ok else None}
-    (RESULTS / "stress-summary.json").write_text(json.dumps(out, indent=2))
+    (RESULTS / f"stress-summary{args.suffix}.json").write_text(json.dumps(out, indent=2))
     print(json.dumps(out, indent=2))
 
 
@@ -347,6 +347,7 @@ def main():
     p.add_argument("--suffix", default="", help="sufijo del nombre, ej. -como-desplegado"); p.set_defaults(fn=cmd_progressive)
     p = sub.add_parser("stress"); p.add_argument("--levels", type=int, nargs="+", default=[100, 250, 500, 750, 1000, 1500, 2000])
     p.add_argument("--duration", default="1m", help="no se usa: la duracion es rampa + sostenido"); p.add_argument("--max-requests", type=int, default=250000)
+    p.add_argument("--suffix", default="", help="sufijo del nombre, ej. -video (no pisa los resultados del informe)")
     p.add_argument("--continue-after-degradation", action="store_true", help="registra el primer nivel fuera de parametros pero sigue con los demas")
     p.set_defaults(fn=cmd_stress)
     p = sub.add_parser("recovery"); p.add_argument("--vus", type=int, default=250); p.add_argument("--duration", default="1m")
