@@ -1,0 +1,38 @@
+{
+  "scenario": "progressive-500vu-video",
+  "vus": 500,
+  "duration": "2m",
+  "measuredPhase": "toda la prueba",
+  "requestsAllPhases": 52399,
+  "startedAt": "2026-10-20T16:07:22.872Z",
+  "endedAt": "2026-10-20T16:09:24.599Z",
+  "testRunSeconds": 122,
+  "requests": 52398,
+  "measuredSeconds": 122,
+  "throughputRps": 430.46,
+  "errorRate": 0.8345,
+  "latencyMs": {
+    "avg": 143.8,
+    "min": 66,
+    "med": 122.5,
+    "p90": 221.5,
+    "p95": 258.5,
+    "p99": 368.9,
+    "max": 1663.7
+  },
+  "status": {
+    "ok200": 8674,
+    "throttled429": 0,
+    "errors5xx": 43724,
+    "other": 0
+  },
+  "thresholdsFailed": [],
+  "k6ExitCode": 0,
+  "queue": {
+    "peakVisible": 8367,
+    "peakInFlight": 15,
+    "dlqAtEnd": 0,
+    "secondsToDrainAfterLoad": null,
+    "drainTimeoutSeconds": 180
+  }
+}

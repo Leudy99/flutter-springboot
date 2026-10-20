@@ -1,38 +1,38 @@
 {
-  "scenario": "progressive-100vu",
+  "scenario": "progressive-100vu-video",
   "vus": 100,
   "duration": "2m",
   "measuredPhase": "toda la prueba",
-  "requestsAllPhases": 10741,
-  "startedAt": "2026-10-20T15:21:45.604Z",
-  "endedAt": "2026-10-20T15:23:47.429Z",
+  "requestsAllPhases": 10744,
+  "startedAt": "2026-10-20T15:45:07.844Z",
+  "endedAt": "2026-10-20T15:47:09.691Z",
   "testRunSeconds": 122,
-  "requests": 10740,
+  "requests": 10743,
   "measuredSeconds": 122,
-  "throughputRps": 88.16,
-  "errorRate": 0.922,
+  "throughputRps": 88.17,
+  "errorRate": 0.3879,
   "latencyMs": {
-    "avg": 117.5,
-    "min": 62.1,
-    "med": 109.8,
-    "p90": 168,
-    "p95": 192.5,
-    "p99": 237.4,
-    "max": 486.9
+    "avg": 119.4,
+    "min": 68.3,
+    "med": 110.7,
+    "p90": 150.5,
+    "p95": 173,
+    "p99": 324.4,
+    "max": 1287.7
   },
   "status": {
-    "ok200": 838,
-    "throttled429": 9501,
-    "errors5xx": 401,
+    "ok200": 6576,
+    "throttled429": 0,
+    "errors5xx": 4167,
     "other": 0
   },
   "thresholdsFailed": [],
   "k6ExitCode": 0,
   "queue": {
-    "peakVisible": 20,
-    "peakInFlight": 5,
+    "peakVisible": 5882,
+    "peakInFlight": 3,
     "dlqAtEnd": 0,
-    "secondsToDrainAfterLoad": 20,
+    "secondsToDrainAfterLoad": 117,
     "drainTimeoutSeconds": 180
   }
 }
