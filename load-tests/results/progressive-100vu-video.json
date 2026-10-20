@@ -1,0 +1,38 @@
+{
+  "scenario": "progressive-100vu",
+  "vus": 100,
+  "duration": "2m",
+  "measuredPhase": "toda la prueba",
+  "requestsAllPhases": 10741,
+  "startedAt": "2026-10-20T15:21:45.604Z",
+  "endedAt": "2026-10-20T15:23:47.429Z",
+  "testRunSeconds": 122,
+  "requests": 10740,
+  "measuredSeconds": 122,
+  "throughputRps": 88.16,
+  "errorRate": 0.922,
+  "latencyMs": {
+    "avg": 117.5,
+    "min": 62.1,
+    "med": 109.8,
+    "p90": 168,
+    "p95": 192.5,
+    "p99": 237.4,
+    "max": 486.9
+  },
+  "status": {
+    "ok200": 838,
+    "throttled429": 9501,
+    "errors5xx": 401,
+    "other": 0
+  },
+  "thresholdsFailed": [],
+  "k6ExitCode": 0,
+  "queue": {
+    "peakVisible": 20,
+    "peakInFlight": 5,
+    "dlqAtEnd": 0,
+    "secondsToDrainAfterLoad": 20,
+    "drainTimeoutSeconds": 180
+  }
+}
