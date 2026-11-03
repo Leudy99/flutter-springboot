@@ -1,0 +1,47 @@
+# Backend Spring Boot. Inicia con 2 replicas y luego se escala a 5.
+# Los datos sensibles (Neon y JWT) NO estan aqui: vienen del Secret "backend-secret",
+# que se crea con kubectl (ver README).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  labels:
+    app: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: springboot-backend:1.0
+          imagePullPolicy: IfNotPresent   # usa la imagen local de Docker
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - secretRef:
+                name: backend-secret      # DATABASE_URL, DATABASE_USERNAME, DATABASE_PASSWORD, JWT_SECRET
+          env:
+            - name: SHOW_SQL
+              value: "false"
+            # Neon limita conexiones: con varias replicas, pool pequeno por Pod
+            - name: DB_POOL_SIZE
+              value: "3"
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=60"
+          readinessProbe:
+            tcpSocket:
+              port: 8081
+            initialDelaySeconds: 20
+            periodSeconds: 5
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
