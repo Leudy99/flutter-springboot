@@ -282,6 +282,90 @@ En **Settings → Secrets and variables → Actions**:
 
 GitHub oculta estos valores en los logs (`***`) y Terraform los marca como sensibles.
 
+## Docker y Kubernetes
+
+Backend y frontend se ejecutan también en contenedores y se despliegan en un cluster local de Kubernetes (Docker Desktop).
+
+```text
+Navegador ──> frontend-service (30080) ──> Pod frontend (Flutter Web + Nginx)
+Navegador ──> backend-service  (30081) ──> Pods backend (Spring Boot, 2 → 5 réplicas) ──> PostgreSQL (Neon)
+```
+
+### Tecnologías
+
+Spring Boot 3 · Flutter Web · Docker · Kubernetes (Docker Desktop) · PostgreSQL (Neon)
+
+### Estructura
+
+```text
+backend/       API Spring Boot + Dockerfile
+frontend/      App Flutter + Dockerfile + nginx.conf
+kubernetes/    Deployments y Services (backend y frontend)
+evidencias/    capturas y guía para el PDF
+```
+
+### Requisitos
+
+Docker Desktop con Kubernetes activado (Settings → Kubernetes → Enable Kubernetes). Comprobación:
+
+```bash
+docker --version
+kubectl cluster-info
+```
+
+### Construir las imágenes
+
+```bash
+docker build -t springboot-backend:1.0 backend
+docker build -t flutter-frontend:1.0 frontend
+docker images
+```
+
+La URL del backend que usa el navegador se pasa al compilar el frontend (`--build-arg API_URL=...`; por defecto `http://localhost:30081`). El código la lee en un solo lugar: `frontend/lib/config.dart`.
+
+### Desplegar en Kubernetes
+
+El backend necesita la base de datos y la clave JWT. Se guardan en un **Secret** (no están en ningún YAML):
+
+```bash
+kubectl create secret generic backend-secret \
+  --from-literal=DATABASE_URL='jdbc:postgresql://HOST/BASE?sslmode=require' \
+  --from-literal=DATABASE_USERNAME='usuario' \
+  --from-literal=DATABASE_PASSWORD='contraseña' \
+  --from-literal=JWT_SECRET='clave-de-32-caracteres-como-minimo'
+
+kubectl apply -f kubernetes/
+```
+
+### Verificar
+
+```bash
+kubectl get pods
+kubectl get deployments
+kubectl get svc
+```
+
+El backend inicia con **2 réplicas** (`backend-deployment`) y el frontend con 1.
+
+### Escalar el backend a 5 réplicas
+
+```bash
+kubectl scale deployment backend-deployment --replicas=5
+kubectl get pods
+kubectl get deployments
+```
+
+### Acceso
+
+| Servicio | URL |
+| --- | --- |
+| App (frontend) | http://localhost:30080 |
+| API (backend) | http://localhost:30081 |
+
+Para eliminar todo: `kubectl delete -f kubernetes/` y `kubectl delete secret backend-secret`.
+
+---
+
 ## Pruebas de carga
 
 Scripts K6, resultados y gráficas en [load-tests/](load-tests/README.md). Informe técnico con resultados, cuello de botella y recomendaciones: [docs/INFORME_PRUEBAS_CARGA.md](docs/INFORME_PRUEBAS_CARGA.md).
