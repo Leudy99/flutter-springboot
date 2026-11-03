@@ -24,12 +24,12 @@ La app nunca accede a la base de datos directamente: todo pasa por la API.
 La API ya está desplegada. Solo hace falta Flutter 3.41 o superior y un emulador de Android Studio:
 
 ```bash
-cd mobile
+cd frontend
 flutter pub get
 flutter run
 ```
 
-En VS Code: abre `mobile`, elige el emulador en la barra inferior y pulsa **F5**.
+En VS Code: abre `frontend`, elige el emulador en la barra inferior y pulsa **F5**.
 En la pantalla de acceso elige **Crear cuenta** o entra con `admin@test.com` / `123456`.
 
 > La primera petición tras un rato sin uso tarda unos 2 s (Lambda restaura Spring Boot con SnapStart). Las siguientes tardan unos 0,3 s.
@@ -50,7 +50,7 @@ docker compose up --build -d
 | `flutterapp-api` | `8081` | API → `http://localhost:8081` |
 | `flutterapp-db` | `5434` | PostgreSQL (base `apidb`, usuario `alumno`, clave `123456`) |
 
-Después cambia una línea en `mobile/lib/config.dart` y ejecuta la app:
+Después cambia una línea en `frontend/lib/config.dart` y ejecuta la app:
 
 ```dart
 static const Backend backend = Backend.local;   // Backend.cloud = AWS
@@ -146,7 +146,7 @@ Todo el proceso dentro de AWS tarda unas décimas de segundo; la Lambda principa
 
 ### Concurrencia con `Future.wait()`
 
-Archivo: `mobile/lib/viewmodels/home_viewmodel.dart`
+Archivo: `frontend/lib/viewmodels/home_viewmodel.dart`
 
 El Inicio pide 3 datos a la API: perfil, usuarios y archivos.
 

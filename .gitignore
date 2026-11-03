@@ -32,32 +32,32 @@ backend/.mvn/wrapper/maven-wrapper.jar
 backend/uploads/
 
 # ===== Mobile (Flutter / Dart) =====
-mobile/.dart_tool/
-mobile/.flutter-plugins-dependencies
-mobile/.pub-cache/
-mobile/.pub/
-mobile/build/
-mobile/coverage/
-mobile/doc/api/
-mobile/migrate_working_dir/
+frontend/.dart_tool/
+frontend/.flutter-plugins-dependencies
+frontend/.pub-cache/
+frontend/.pub/
+frontend/build/
+frontend/coverage/
+frontend/doc/api/
+frontend/migrate_working_dir/
 app.*.symbols
 app.*.map.json
 
 # ===== Mobile / Android =====
-mobile/android/.gradle/
-mobile/android/.kotlin/
-mobile/android/captures/
-mobile/android/local.properties
-mobile/android/gradlew
-mobile/android/gradlew.bat
-mobile/android/**/gradle-wrapper.jar
-mobile/android/app/debug/
-mobile/android/app/profile/
-mobile/android/app/release/
-mobile/android/**/GeneratedPluginRegistrant.java
-mobile/android/**/.cxx/
+frontend/android/.gradle/
+frontend/android/.kotlin/
+frontend/android/captures/
+frontend/android/local.properties
+frontend/android/gradlew
+frontend/android/gradlew.bat
+frontend/android/**/gradle-wrapper.jar
+frontend/android/app/debug/
+frontend/android/app/profile/
+frontend/android/app/release/
+frontend/android/**/GeneratedPluginRegistrant.java
+frontend/android/**/.cxx/
 # Claves de firma: nunca subirlas
-mobile/android/key.properties
+frontend/android/key.properties
 **/*.keystore
 **/*.jks
 
