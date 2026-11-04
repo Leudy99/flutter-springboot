@@ -301,7 +301,6 @@ Spring Boot 3 · Flutter Web · Docker · Kubernetes (Docker Desktop) · Postgre
 backend/       API Spring Boot + Dockerfile
 frontend/      App Flutter + Dockerfile + nginx.conf
 kubernetes/    Deployments y Services (backend y frontend)
-evidencias/    capturas y guía para el PDF
 ```
 
 ### Requisitos
