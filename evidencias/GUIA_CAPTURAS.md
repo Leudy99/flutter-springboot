@@ -1,24 +1,21 @@
-# Guía de capturas (evidencias)
+# Evidencias (Docker y Kubernetes)
 
-Todas las capturas deben ser de **tu pantalla**, tomadas en el momento. El script las ordena:
+`Evidencias_Docker_Kubernetes.pdf` reúne las capturas de pantalla tomadas el 3 de noviembre de 2026 con los comandos ejecutados contra el cluster de Docker Desktop.
+
+| # | Archivo | Contenido |
+|---|---|---|
+| 1 | `01-docker-images.png` | `docker images`: `springboot-backend:1.0` y `flutter-frontend:1.0` |
+| 2 | `02-pods-2-replicas.png` | `kubectl get pods`: 2 Pods del backend y 1 del frontend, `Running` |
+| 3 | `03-deployments-2-replicas.png` | `kubectl get deployments`: backend 2/2, frontend 1/1 |
+| 4 | `04-services.png` | `kubectl get svc`: `backend-service` (30081) y `frontend-service` (30080) |
+| 5 | `05-frontend-funcionando.png` | App Flutter Web en `http://localhost:30080` con datos del backend |
+| 6 | `06-backend-usuarios.png` | Pantalla de usuarios, obtenidos de la API en Kubernetes |
+| 7 | `07-escalado-comando.png` | `kubectl scale deployment backend-deployment --replicas=5` y Pods nuevos |
+| 8 | `08-deployments-5-replicas.png` | `kubectl get deployments`: backend 5/5 |
+| 9 | `09-pods-5-replicas.png` | `kubectl get pods`: 5 Pods del backend en `Running` |
+
+Para repetir las capturas a mano, `capturas.ps1` ejecuta los comandos en orden y se detiene tras cada bloque:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\evidencias\capturas.ps1
 ```
-
-El script deja el backend en **2 réplicas** para las primeras capturas, te pide abrir el navegador, escala a **5 réplicas** y muestra el resultado. Se detiene tras cada bloque: toma la captura con `Win + Shift + S` y presiona Enter.
-
-| # | Captura | Qué debe verse | Descripción para el PDF |
-|---|---|---|---|
-| 1 | `docker images` | `springboot-backend` y `flutter-frontend` con su etiqueta `1.0` y tamaño | Imágenes Docker construidas para backend y frontend |
-| 2 | `kubectl get pods` | 2 Pods `backend-deployment-…` y 1 `frontend-deployment-…`, todos `Running` | Pods con el backend en 2 réplicas |
-| 3 | `kubectl get deployments` | `backend-deployment 2/2` y `frontend-deployment 1/1` | Deployments con sus réplicas disponibles |
-| 4 | `kubectl get svc` | `backend-service` (30081) y `frontend-service` (30080) | Services que exponen backend y frontend |
-| 5 | Navegador en `http://localhost:30080` | La app Flutter con la sesión iniciada y datos visibles | Frontend funcionando sobre Kubernetes |
-| 6 | Navegador en `http://localhost:30081/api/users/me` | Respuesta 401 (o la pantalla de la app con datos) | Backend respondiendo desde Kubernetes |
-| 7 | `kubectl get deployments` tras escalar | `backend-deployment 5/5` | Backend escalado a 5 réplicas |
-| 8 | `kubectl get pods` tras escalar | 5 Pods `backend-deployment-…` en `Running` | Los 5 Pods del backend |
-
-Las capturas 2 y 3 (2 réplicas) y las 7 y 8 (5 réplicas) deben mostrar claramente el cambio **2 → 5**.
-
-Guarda las imágenes en esta carpeta (`evidencias/`) con nombres como `01-docker-images.png`, `02-pods-2-replicas.png`, etc. El PDF se arma al final con estas imágenes y la descripción de cada una.
