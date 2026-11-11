@@ -71,6 +71,7 @@ crash.log
 # Archivos con secretos para pruebas locales: nunca subirlos
 *.secret.tfvars
 secrets.auto.tfvars
+kubernetes/backend-secret.yaml
 
 # Zip de notification-lambda generado por Terraform
 terraform/notification-lambda.zip

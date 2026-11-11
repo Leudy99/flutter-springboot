@@ -324,15 +324,9 @@ La URL del backend que usa el navegador se pasa al compilar el frontend (`--buil
 
 ### Desplegar en Kubernetes
 
-El backend necesita la base de datos y la clave JWT. Se guardan en un **Secret** (no están en ningún YAML):
+El backend necesita la base de datos y la clave JWT. Se guardan en el **Secret** `backend-secret`. Edita `kubernetes/backend-secret.yaml` con tus valores reales (el archivo está en `.gitignore`, no se sube al repositorio) y aplica todo:
 
 ```bash
-kubectl create secret generic backend-secret \
-  --from-literal=DATABASE_URL='jdbc:postgresql://HOST/BASE?sslmode=require' \
-  --from-literal=DATABASE_USERNAME='usuario' \
-  --from-literal=DATABASE_PASSWORD='contraseña' \
-  --from-literal=JWT_SECRET='clave-de-32-caracteres-como-minimo'
-
 kubectl apply -f kubernetes/
 ```
 
@@ -361,7 +355,7 @@ kubectl get deployments
 | App (frontend) | http://localhost:30080 |
 | API (backend) | http://localhost:30081 |
 
-Para eliminar todo: `kubectl delete -f kubernetes/` y `kubectl delete secret backend-secret`.
+Para eliminar todo: `kubectl delete -f kubernetes/`.
 
 ---
 
