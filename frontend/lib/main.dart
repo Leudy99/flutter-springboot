@@ -8,11 +8,13 @@ import 'repositories/notification_repository.dart';
 import 'repositories/user_repository.dart';
 import 'services/api_client.dart';
 import 'services/auth_service.dart';
+import 'services/chat_service.dart';
 import 'services/file_service.dart';
 import 'services/notification_service.dart';
 import 'services/token_storage.dart';
 import 'services/user_service.dart';
 import 'theme.dart';
+import 'viewmodels/chat_viewmodel.dart';
 import 'viewmodels/file_viewer_viewmodel.dart';
 import 'viewmodels/files_viewmodel.dart';
 import 'viewmodels/home_viewmodel.dart';
@@ -98,6 +100,8 @@ class App extends StatelessWidget {
                 create: (ctx) => UserListViewModel(ctx.read<UserRepository>())),
             ChangeNotifierProvider(
                 create: (ctx) => FilesViewModel(ctx.read<FileRepository>())),
+            // Chat WebSocket: se conecta cuando el usuario pulsa "Conectar"
+            ChangeNotifierProvider(create: (_) => ChatViewModel(ChatService())),
           ],
           child: const MainShellView(),
         ),

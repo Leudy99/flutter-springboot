@@ -31,4 +31,13 @@ class AppConfig {
     if (forced.isNotEmpty) return forced;
     return backend == Backend.cloud ? cloudUrl : localUrl;
   }
+
+  /// URL del chat WebSocket: la misma de la API cambiando http -> ws (https -> wss).
+  /// Solo funciona con el backend local o Kubernetes, no con AWS Lambda.
+  static String get wsUrl {
+    final uri = Uri.parse(apiUrl);
+    return uri
+        .replace(scheme: uri.scheme == 'https' ? 'wss' : 'ws', path: '/ws/chat')
+        .toString();
+  }
 }

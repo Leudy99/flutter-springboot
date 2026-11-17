@@ -50,6 +50,12 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- WebSocket: chat en tiempo real (ws://HOST/ws/chat) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
         <!-- Persistencia con JPA / Hibernate -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

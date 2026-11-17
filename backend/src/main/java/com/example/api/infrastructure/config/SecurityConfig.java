@@ -50,7 +50,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // /error es la ruta interna a la que Spring reenvia los errores.
                         // Sin abrirla, un 400 o un 404 saldrian como 401.
-                        .requestMatchers("/auth/**", "/error").permitAll()
+                        // /ws/** es el chat WebSocket: el navegador no puede enviar la
+                        // cabecera Authorization al abrir un WebSocket, y el chat es publico.
+                        .requestMatchers("/auth/**", "/error", "/ws/**").permitAll()
                         .anyRequest().authenticated())
 
                 // Sin token valido -> 401 Unauthorized (en vez del 403 por defecto)

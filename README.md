@@ -465,9 +465,11 @@ Debe verse `Hola desde Kubernetes - CronJob modificado`. Al terminar se puede de
 **6. Suspender el CronJob**
 
 ```powershell
-kubectl patch cronjob kubernetes-cronjob -p '{"spec":{"suspend":true}}'
+kubectl patch cronjob kubernetes-cronjob -p '{\"spec\":{\"suspend\":true}}'
 kubectl get cronjobs
 ```
+
+(En Windows PowerShell 5.1 las comillas dobles del JSON se escapan con `\"`. En Git Bash se escribe sin la barra.)
 
 Debe mostrar `SUSPEND = True`. Mientras esté suspendido no se crean Jobs nuevos (se comprueba con `kubectl get jobs` pasados 2 minutos).
 
@@ -476,7 +478,7 @@ Si PowerShell da problemas con las comillas, poner `suspend: true` bajo `spec:` 
 Para reactivarlo:
 
 ```powershell
-kubectl patch cronjob kubernetes-cronjob -p '{"spec":{"suspend":false}}'
+kubectl patch cronjob kubernetes-cronjob -p '{\"spec\":{\"suspend\":false}}'
 ```
 
 **7. Eliminar el CronJob**
@@ -487,6 +489,90 @@ kubectl get cronjobs
 ```
 
 `get cronjobs` responde `No resources found in default namespace.` Sus Jobs y Pods se eliminan con él.
+
+### Chat con WebSockets
+
+Un **WebSocket** mantiene la conexión abierta entre el navegador y el servidor: el servidor envía cada mensaje a todos los clientes en el momento en que llega, sin que estos pregunten una y otra vez (sin *polling*). Es la pestaña **Chat** de la app.
+
+```text
+Flutter Web (cliente 1) ──┐
+                          ├── WebSocket ──> Spring Boot (/ws/chat) ──> reenvía a todos
+Flutter Web (cliente 2) ──┘
+```
+
+**Flujo de un mensaje**
+
+1. El cliente abre `ws://HOST:PUERTO/ws/chat` y envía `{"type":"CONNECT","username":"Leudy"}`.
+2. El servidor avisa a todos: `Leudy se ha conectado.`
+3. Un cliente envía `{"type":"MESSAGE","message":"Hola"}`.
+4. El servidor lo reenvía a **todos** los conectados con el nombre y la fecha y hora (la pone el servidor).
+5. Al cerrarse la conexión, el servidor avisa: `Leudy se ha desconectado.`
+
+Los mensajes viven solo en memoria (no hay base de datos ni historial) y el chat es público (sin JWT).
+
+| Dónde | Archivo |
+| --- | --- |
+| Backend: registro de la ruta `/ws/chat` | [WebSocketConfig.java](backend/src/main/java/com/example/api/infrastructure/websocket/WebSocketConfig.java) |
+| Backend: sesiones, conexión, mensajes y desconexión | [ChatWebSocketHandler.java](backend/src/main/java/com/example/api/infrastructure/websocket/ChatWebSocketHandler.java) |
+| Backend: formato del mensaje | [ChatMessage.java](backend/src/main/java/com/example/api/infrastructure/websocket/ChatMessage.java) |
+| Flutter: conexión WebSocket | [chat_service.dart](frontend/lib/services/chat_service.dart) |
+| Flutter: estado y lista de mensajes | [chat_viewmodel.dart](frontend/lib/viewmodels/chat_viewmodel.dart) |
+| Flutter: pantalla | [chat_view.dart](frontend/lib/views/chat_view.dart) |
+
+> **Una sola réplica del backend.** Las conexiones viven en la memoria de cada Pod. Con varias réplicas, dos clientes pueden quedar en Pods distintos y no verse (haría falta Redis o un broker, fuera de esta actividad). Además, el chat **no funciona en AWS Lambda** (atiende una petición y termina): Terraform lo desactiva con `WEBSOCKET_ENABLED=false`.
+
+#### Paso a paso en Kubernetes (PowerShell, desde la raíz del proyecto)
+
+**1. Reconstruir las imágenes**
+
+```powershell
+docker build -t springboot-backend:1.0 ./backend
+docker build -t flutter-frontend:1.0 ./frontend
+docker images
+```
+
+**2. Desplegar con 1 réplica del backend**
+
+```powershell
+kubectl apply -f kubernetes/backend-secret.yaml -f kubernetes/backend-deployment.yaml -f kubernetes/backend-service.yaml -f kubernetes/frontend-deployment.yaml -f kubernetes/frontend-service.yaml
+kubectl scale deployment backend-deployment --replicas=1
+kubectl get deployments
+kubectl get pods
+kubectl get svc
+```
+
+`backend-deployment` debe mostrar `1/1`. Si ya estaba desplegado, en lugar del `apply` se reinician los Pods con las imágenes nuevas: `kubectl rollout restart deployment backend-deployment` y `kubectl rollout restart deployment frontend-deployment`.
+
+**3. Probar con dos clientes**
+
+- Cliente 1: ventana normal en http://localhost:30080 → iniciar sesión → pestaña **Chat** → nombre `Leudy` → **Conectar**.
+- Cliente 2: ventana de incógnito en http://localhost:30080 → iniciar sesión → **Chat** → nombre `Carlos` → **Conectar**.
+
+El cliente 1 ve `Carlos se ha conectado.` Leudy escribe `Hola Carlos` y Carlos lo recibe al instante, sin recargar. Carlos responde `Hola Leudy`. Al pulsar **Desconectar** en Carlos (o cerrar su ventana), Leudy ve `Carlos se ha desconectado.`
+
+**4. Ver las conexiones en los logs del backend**
+
+```powershell
+kubectl logs deployment/backend-deployment
+```
+
+Aparecen líneas `WebSocket abierto`, `Broadcast MESSAGE a 2 clientes` y `WebSocket cerrado`.
+
+**5. Volver a 2 réplicas** (estado normal del despliegue, sin chat entre Pods distintos)
+
+```powershell
+kubectl scale deployment backend-deployment --replicas=2
+```
+
+#### Probar sin Kubernetes
+
+```powershell
+cd backend
+docker compose up -d db
+mvn spring-boot:run
+```
+
+En otra terminal: `cd frontend; flutter run -d chrome --dart-define=API_URL=http://localhost:8081`. La URL del WebSocket se calcula en [config.dart](frontend/lib/config.dart) cambiando `http` por `ws` en `API_URL`.
 
 ---
 

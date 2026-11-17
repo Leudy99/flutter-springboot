@@ -17,6 +17,16 @@ String formatDate(DateTime? date) {
   return '${two(d.day)}/${two(d.month)}/${d.year} ${two(d.hour)}:${two(d.minute)}';
 }
 
+/// Fecha y hora con segundos en formato 12 horas: 16/11/2026 10:31:10 PM
+String formatDateTime(DateTime date) {
+  final d = date.toLocal();
+  String two(int n) => n.toString().padLeft(2, '0');
+  final hour12 = d.hour % 12 == 0 ? 12 : d.hour % 12;
+  final suffix = d.hour < 12 ? 'AM' : 'PM';
+  return '${two(d.day)}/${two(d.month)}/${d.year} '
+      '${two(hour12)}:${two(d.minute)}:${two(d.second)} $suffix';
+}
+
 /// Circulo con las iniciales del usuario.
 class UserAvatar extends StatelessWidget {
   final String name;

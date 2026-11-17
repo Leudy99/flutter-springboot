@@ -4,11 +4,12 @@ import 'package:provider/provider.dart';
 import '../viewmodels/files_viewmodel.dart';
 import '../viewmodels/home_viewmodel.dart';
 import '../viewmodels/user_list_viewmodel.dart';
+import 'chat_view.dart';
 import 'files_view.dart';
 import 'home_view.dart';
 import 'user_list_view.dart';
 
-/// Estructura principal tras el login: barra inferior con Inicio, Usuarios y Archivos.
+/// Estructura principal tras el login: barra inferior con Inicio, Usuarios, Archivos y Chat.
 /// Cada pestana conserva su estado (IndexedStack) y se recarga al volver a ella.
 class MainShellView extends StatefulWidget {
   const MainShellView({super.key});
@@ -42,6 +43,7 @@ class _MainShellViewState extends State<MainShellView> {
           HomeView(onOpenTab: _select),
           const UserListView(),
           const FilesView(),
+          const ChatView(),
         ],
       ),
       bottomNavigationBar: DecoratedBox(
@@ -66,6 +68,11 @@ class _MainShellViewState extends State<MainShellView> {
               icon: Icon(Icons.folder_outlined),
               selectedIcon: Icon(Icons.folder),
               label: 'Archivos',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.forum_outlined),
+              selectedIcon: Icon(Icons.forum),
+              label: 'Chat',
             ),
           ],
         ),

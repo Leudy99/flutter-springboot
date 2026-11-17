@@ -150,6 +150,9 @@ resource "aws_lambda_function" "api" {
       NOTIFICATIONS = "sns"
       SNS_TOPIC_ARN = aws_sns_topic.notifications.arn
 
+      # El chat WebSocket solo funciona en el backend local/Kubernetes, no en Lambda
+      WEBSOCKET_ENABLED = "false"
+
       # Cada instancia de Lambda atiende una peticion a la vez: 2 conexiones bastan
       DB_POOL_SIZE = "2"
       SHOW_SQL     = "false"
