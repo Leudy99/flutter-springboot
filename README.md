@@ -398,7 +398,8 @@ spec:
               command:
                 - /bin/sh
                 - -c
-                - date; echo "Hola desde Kubernetes"
+                # Hora de Republica Dominicana (UTC-4) en formato de 12 horas
+                - TZ="AST4" date "+%d/%m/%Y %I:%M:%S %p"; echo "Hola desde Kubernetes"
           restartPolicy: OnFailure
 ```
 
@@ -438,7 +439,7 @@ kubectl logs (kubectl get pods --sort-by=.metadata.creationTimestamp -o name | S
 Salida esperada:
 
 ```text
-Tue Nov 17 01:31:03 UTC 2026
+16/11/2026 09:31:03 PM
 Hola desde Kubernetes
 ```
 
@@ -449,7 +450,7 @@ Hola desde Kubernetes
 En `kubernetes/cronjob.yaml` cambiar el mensaje:
 
 ```yaml
-- date; echo "Hola desde Kubernetes - CronJob modificado"
+- TZ="AST4" date "+%d/%m/%Y %I:%M:%S %p"; echo "Hola desde Kubernetes - CronJob modificado"
 ```
 
 Guardar, aplicar y esperar la siguiente ejecución (hasta 1 minuto):

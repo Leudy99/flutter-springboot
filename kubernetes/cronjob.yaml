@@ -16,5 +16,6 @@ spec:
               command:
                 - /bin/sh
                 - -c
-                - date; echo "Hola desde Kubernetes"
+                # Hora de Republica Dominicana (UTC-4) en formato de 12 horas
+                - TZ="AST4" date "+%d/%m/%Y %I:%M:%S %p"; echo "Hola desde Kubernetes"
           restartPolicy: OnFailure
