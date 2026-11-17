@@ -1,0 +1,20 @@
+# CronJob: cada minuto crea un Job que ejecuta un Pod BusyBox.
+# El Pod imprime la fecha actual y un mensaje, y termina (Completed).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kubernetes-cronjob
+spec:
+  schedule: "* * * * *"          # cada minuto
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: hello
+              image: busybox
+              command:
+                - /bin/sh
+                - -c
+                - date; echo "Hola desde Kubernetes"
+          restartPolicy: OnFailure

@@ -300,7 +300,7 @@ Spring Boot 3 · Flutter Web · Docker · Kubernetes (Docker Desktop) · Postgre
 ```text
 backend/       API Spring Boot + Dockerfile
 frontend/      App Flutter + Dockerfile + nginx.conf
-kubernetes/    Deployments y Services (backend y frontend)
+kubernetes/    Deployments y Services (backend y frontend), Secret local y CronJob
 ```
 
 ### Requisitos
@@ -356,6 +356,137 @@ kubectl get deployments
 | API (backend) | http://localhost:30081 |
 
 Para eliminar todo: `kubectl delete -f kubernetes/`.
+
+> `kubectl apply -f kubernetes/` y `kubectl delete -f kubernetes/` también incluyen `cronjob.yaml`. Para trabajar solo con el CronJob usa siempre `-f kubernetes/cronjob.yaml`.
+
+### CronJob de Kubernetes
+
+Un **CronJob** ejecuta una tarea automáticamente según una programación. Aquí corre **cada minuto** y su única tarea es imprimir la fecha actual y `Hola desde Kubernetes`. No usa la base de datos, el backend ni el Secret.
+
+```text
+CronJob (kubernetes-cronjob)
+   ↓ cada minuto
+Job
+   ↓
+Pod (busybox): date + echo "Hola desde Kubernetes"
+   ↓
+Completed
+```
+
+| Recurso | Qué es |
+| --- | --- |
+| CronJob | Programa la tarea (`* * * * *` = cada minuto) |
+| Job | Una ejecución concreta, creada por el CronJob |
+| Pod | Donde corre el contenedor `busybox`; al terminar queda `Completed` (no es un error) |
+
+Archivo: [kubernetes/cronjob.yaml](kubernetes/cronjob.yaml)
+
+```yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kubernetes-cronjob
+spec:
+  schedule: "* * * * *"          # cada minuto
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: hello
+              image: busybox
+              command:
+                - /bin/sh
+                - -c
+                - date; echo "Hola desde Kubernetes"
+          restartPolicy: OnFailure
+```
+
+#### Paso a paso (PowerShell, desde la raíz del proyecto)
+
+**1. Crear el CronJob**
+
+```powershell
+kubectl apply -f kubernetes/cronjob.yaml
+kubectl get cronjobs
+```
+
+Debe aparecer `kubernetes-cronjob` con `SCHEDULE = * * * * *` y `SUSPEND = False`.
+
+**2. Ver los Jobs** (esperar 1 o 2 minutos)
+
+```powershell
+kubectl get jobs
+```
+
+Cada minuto aparece un Job nuevo `kubernetes-cronjob-XXXXXXXX` con `COMPLETIONS 1/1`.
+
+**3. Ver los Pods**
+
+```powershell
+kubectl get pods
+```
+
+Los Pods pasan de `Running` a `Completed`.
+
+**4. Ver los logs** del Pod más reciente
+
+```powershell
+kubectl logs (kubectl get pods --sort-by=.metadata.creationTimestamp -o name | Select-Object -Last 1)
+```
+
+Salida esperada:
+
+```text
+Tue Nov 17 01:31:03 UTC 2026
+Hola desde Kubernetes
+```
+
+> El CronJob solo conserva los últimos 3 Jobs exitosos. Si se usa el nombre de un Pod viejo, `kubectl logs` responde `pods "..." not found`. Por eso se toma siempre el Pod más reciente.
+
+**5. Modificar el CronJob**
+
+En `kubernetes/cronjob.yaml` cambiar el mensaje:
+
+```yaml
+- date; echo "Hola desde Kubernetes - CronJob modificado"
+```
+
+Guardar, aplicar y esperar la siguiente ejecución (hasta 1 minuto):
+
+```powershell
+kubectl apply -f kubernetes/cronjob.yaml
+kubectl get cronjobs
+kubectl logs (kubectl get pods --sort-by=.metadata.creationTimestamp -o name | Select-Object -Last 1)
+```
+
+Debe verse `Hola desde Kubernetes - CronJob modificado`. Al terminar se puede dejar el mensaje original.
+
+**6. Suspender el CronJob**
+
+```powershell
+kubectl patch cronjob kubernetes-cronjob -p '{"spec":{"suspend":true}}'
+kubectl get cronjobs
+```
+
+Debe mostrar `SUSPEND = True`. Mientras esté suspendido no se crean Jobs nuevos (se comprueba con `kubectl get jobs` pasados 2 minutos).
+
+Si PowerShell da problemas con las comillas, poner `suspend: true` bajo `spec:` en el YAML y volver a aplicar con `kubectl apply -f kubernetes/cronjob.yaml`.
+
+Para reactivarlo:
+
+```powershell
+kubectl patch cronjob kubernetes-cronjob -p '{"spec":{"suspend":false}}'
+```
+
+**7. Eliminar el CronJob**
+
+```powershell
+kubectl delete cronjob kubernetes-cronjob
+kubectl get cronjobs
+```
+
+`get cronjobs` responde `No resources found in default namespace.` Sus Jobs y Pods se eliminan con él.
 
 ---
 
