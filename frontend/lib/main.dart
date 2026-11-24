@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'algorithm_race/algorithm_race_service.dart';
+import 'algorithm_race/algorithm_race_view_model.dart';
 import 'models/uploaded_file.dart';
 import 'repositories/auth_repository.dart';
 import 'repositories/file_repository.dart';
@@ -59,6 +61,7 @@ Future<void> main() async {
         Provider.value(value: userRepository),
         Provider.value(value: fileRepository),
         Provider.value(value: notificationRepository),
+        Provider.value(value: AlgorithmRaceService(apiClient)),
       ],
       child: App(initialRoute: loggedIn ? '/home' : '/login'),
     ),
@@ -102,6 +105,10 @@ class App extends StatelessWidget {
                 create: (ctx) => FilesViewModel(ctx.read<FileRepository>())),
             // Chat WebSocket: se conecta cuando el usuario pulsa "Conectar"
             ChangeNotifierProvider(create: (_) => ChatViewModel(ChatService())),
+            // Carrera de Algoritmos: se ejecuta al pulsar "Ejecutar carrera"
+            ChangeNotifierProvider(
+                create: (ctx) =>
+                    AlgorithmRaceViewModel(ctx.read<AlgorithmRaceService>())),
           ],
           child: const MainShellView(),
         ),

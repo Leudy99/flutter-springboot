@@ -31,9 +31,8 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = context.watch<HomeViewModel>();
 
-    // Iconos claros en la barra de estado sobre la cabecera oscura
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: SystemUiOverlayStyle.dark,
       child: Scaffold(
         body: RefreshIndicator(
           onRefresh: vm.refresh,
@@ -90,7 +89,7 @@ class HomeView extends StatelessWidget {
   }
 }
 
-/// Cabecera tinta con el perfil y las cifras principales.
+/// Cabecera clara: perfil y cifras principales, sin bloque de color.
 class _Header extends StatelessWidget {
   final HomeViewModel vm;
   final VoidCallback onLogout;
@@ -102,70 +101,64 @@ class _Header extends StatelessWidget {
     final profile = vm.profile;
     final firstName = profile?.name.split(' ').first ?? '';
 
-    return Container(
-      color: AppColors.ink,
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 8, 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  UserAvatar(
-                      name: profile?.name ?? '?', radius: 24, inverted: true),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          profile == null ? 'Cargando...' : 'Hola, $firstName',
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w600),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(profile?.email ?? '',
-                            style: const TextStyle(color: Color(0xFFB8C2CE)),
-                            overflow: TextOverflow.ellipsis),
-                      ],
-                    ),
-                  ),
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert, color: Colors.white),
-                    onSelected: (_) => onLogout(),
-                    itemBuilder: (_) => const [
-                      PopupMenuItem(
-                        value: 'logout',
-                        child: ListTile(
-                          leading: Icon(Icons.logout),
-                          title: Text('Cerrar sesion'),
-                        ),
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 8, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                UserAvatar(name: profile?.name ?? '?', radius: 22),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        profile == null ? 'Cargando...' : 'Hola, $firstName',
+                        style: Theme.of(context).textTheme.titleLarge,
+                        overflow: TextOverflow.ellipsis,
                       ),
+                      Text(profile?.email ?? '',
+                          style: const TextStyle(
+                              color: AppColors.inkSoft, fontSize: 13),
+                          overflow: TextOverflow.ellipsis),
                     ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 22),
-              Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Row(
-                  children: [
-                    _Figure(value: '${vm.users.length}', label: 'Usuarios'),
-                    const _FigureDivider(),
-                    _Figure(value: '${vm.files.length}', label: 'Archivos'),
-                    const _FigureDivider(),
-                    _Figure(
-                        value: formatSize(vm.storageBytes),
-                        label: 'Espacio usado'),
+                ),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert),
+                  onSelected: (_) => onLogout(),
+                  itemBuilder: (_) => const [
+                    PopupMenuItem(
+                      value: 'logout',
+                      child: ListTile(
+                        leading: Icon(Icons.logout),
+                        title: Text('Cerrar sesion'),
+                      ),
+                    ),
                   ],
                 ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Row(
+                children: [
+                  _Figure(value: '${vm.users.length}', label: 'Usuarios'),
+                  const _FigureDivider(),
+                  _Figure(value: '${vm.files.length}', label: 'Archivos'),
+                  const _FigureDivider(),
+                  _Figure(
+                      value: formatSize(vm.storageBytes),
+                      label: 'Espacio usado'),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -186,11 +179,11 @@ class _Figure extends StatelessWidget {
         children: [
           Text(value,
               style: const TextStyle(
-                  color: Colors.white,
                   fontSize: 24,
-                  fontWeight: FontWeight.w600)),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.4)),
           Text(label,
-              style: const TextStyle(color: Color(0xFFB8C2CE), fontSize: 13)),
+              style: const TextStyle(color: AppColors.inkSoft, fontSize: 13)),
         ],
       ),
     );
@@ -203,9 +196,9 @@ class _FigureDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         width: 1,
-        height: 36,
+        height: 34,
         margin: const EdgeInsets.symmetric(horizontal: 14),
-        color: const Color(0xFF3A4757),
+        color: AppColors.border,
       );
 }
 
@@ -262,8 +255,7 @@ class _ConcurrencyPanel extends StatelessWidget {
                 children: [
                   _Time('En paralelo', c, AppColors.teal, AppColors.tealSoft),
                   const SizedBox(width: 12),
-                  _Time(
-                      'En secuencia', s, AppColors.amber, AppColors.amberSoft),
+                  _Time('En secuencia', s, AppColors.ink, AppColors.background),
                 ],
               ),
             if (!vm.isLoading && c != null && s != null && s > c) ...[

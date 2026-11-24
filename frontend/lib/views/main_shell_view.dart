@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../algorithm_race/algorithm_race_page.dart';
+import '../theme.dart';
 import '../viewmodels/files_viewmodel.dart';
 import '../viewmodels/home_viewmodel.dart';
 import '../viewmodels/user_list_viewmodel.dart';
@@ -9,7 +11,7 @@ import 'files_view.dart';
 import 'home_view.dart';
 import 'user_list_view.dart';
 
-/// Estructura principal tras el login: barra inferior con Inicio, Usuarios, Archivos y Chat.
+/// Estructura principal tras el login: barra inferior con Inicio, Usuarios, Archivos, Chat y Carrera de Algoritmos.
 /// Cada pestana conserva su estado (IndexedStack) y se recarga al volver a ella.
 class MainShellView extends StatefulWidget {
   const MainShellView({super.key});
@@ -44,11 +46,12 @@ class _MainShellViewState extends State<MainShellView> {
           const UserListView(),
           const FilesView(),
           const ChatView(),
+          const AlgorithmRacePage(),
         ],
       ),
       bottomNavigationBar: DecoratedBox(
         decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: Color(0xFFDCE1E7))),
+          border: Border(top: BorderSide(color: AppColors.border)),
         ),
         child: NavigationBar(
           selectedIndex: _index,
@@ -73,6 +76,11 @@ class _MainShellViewState extends State<MainShellView> {
               icon: Icon(Icons.forum_outlined),
               selectedIcon: Icon(Icons.forum),
               label: 'Chat',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.flag_outlined),
+              selectedIcon: Icon(Icons.flag),
+              label: 'Carrera',
             ),
           ],
         ),

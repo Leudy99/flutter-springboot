@@ -3,17 +3,20 @@ import 'package:flutter/services.dart';
 
 /// Paleta de la app. Todos los colores salen de aqui.
 class AppColors {
-  static const ink = Color(0xFF1E2A3B); // cabeceras y texto principal
-  static const inkSoft = Color(0xFF52606F); // texto secundario
-  static const teal = Color(0xFF0F766E); // acciones principales
-  static const tealSoft = Color(0xFFE3F1EF);
-  static const amber = Color(0xFFB45309); // acento secundario
-  static const amberSoft = Color(0xFFFBEFE3);
-  static const background = Color(0xFFEEF1F4);
+  static const ink = Color(0xFF12191F); // texto principal
+  static const inkSoft = Color(0xFF5B6670); // texto secundario
+  static const teal = Color(0xFF0B6B61); // unico acento de la app
+  static const tealSoft = Color(0xFFE5F0EE);
+  static const amber = Color(0xFF8A5A00); // solo avisos (p. ej. "Conectando")
+  static const amberSoft = Color(0xFFF6EEDC);
+  static const background = Color(0xFFF5F6F7);
   static const surface = Color(0xFFFFFFFF);
-  static const border = Color(0xFFDCE1E7);
+  static const border = Color(0xFFE1E5E9);
   static const error = Color(0xFFB42318);
   static const errorSoft = Color(0xFFFDECEA);
+
+  /// Un solo radio para toda la app (campos, botones, tarjetas, chips).
+  static const radius = 10.0;
 }
 
 /// Tema visual de toda la app (tipografia, campos, botones, paneles).
@@ -33,12 +36,14 @@ class AppTheme {
       outline: AppColors.border,
       outlineVariant: AppColors.border,
     );
-    final fieldRadius = BorderRadius.circular(10);
+    final fieldRadius = BorderRadius.circular(AppColors.radius);
 
     const text = TextTheme(
-      headlineMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+      headlineMedium: TextStyle(
+          fontSize: 30, fontWeight: FontWeight.w700, letterSpacing: -0.6, height: 1.15),
       headlineSmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
-      titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+      titleLarge: TextStyle(
+          fontSize: 20, fontWeight: FontWeight.w600, letterSpacing: -0.2),
       titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       bodyLarge: TextStyle(fontSize: 16, height: 1.45),
@@ -75,7 +80,7 @@ class AppTheme {
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppColors.radius),
           side: const BorderSide(color: AppColors.border),
         ),
       ),
@@ -103,7 +108,9 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.teal,
-          minimumSize: const Size(0, 50),
+          disabledBackgroundColor: AppColors.border,
+          elevation: 0,
+          minimumSize: const Size(0, 48),
           shape: RoundedRectangleBorder(borderRadius: fieldRadius),
           textStyle: const TextStyle(
               fontFamily: fontFamily,
@@ -114,7 +121,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.ink,
-          minimumSize: const Size(0, 50),
+          minimumSize: const Size(0, 48),
           side: const BorderSide(color: AppColors.border),
           shape: RoundedRectangleBorder(borderRadius: fieldRadius),
           textStyle: const TextStyle(
@@ -135,7 +142,10 @@ class AppTheme {
         style: SegmentedButton.styleFrom(
           selectedBackgroundColor: AppColors.ink,
           selectedForegroundColor: Colors.white,
+          foregroundColor: AppColors.ink,
+          backgroundColor: AppColors.surface,
           side: const BorderSide(color: AppColors.border),
+          shape: RoundedRectangleBorder(borderRadius: fieldRadius),
         ),
       ),
       chipTheme: ChipThemeData(
@@ -147,11 +157,13 @@ class AppTheme {
         secondaryLabelStyle:
             const TextStyle(fontFamily: fontFamily, color: Colors.white),
         checkmarkColor: Colors.white,
-        shape: const StadiumBorder(),
+        shape: RoundedRectangleBorder(borderRadius: fieldRadius),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surface,
-        indicatorColor: AppColors.tealSoft,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: Colors.transparent,
+        height: 64,
         elevation: 0,
         labelTextStyle: WidgetStateProperty.resolveWith((states) => TextStyle(
               fontFamily: fontFamily,

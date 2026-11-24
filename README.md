@@ -203,6 +203,7 @@ updated_at                                 size_bytes    CHECK > 0
 | `GET` | `/files/{storedName}` | sí | Descargar uno de mis archivos |
 | `DELETE` | `/files/{id}` | sí | Eliminar uno de mis archivos |
 | `POST` | `/notifications/send` | sí | Publicar una notificación por correo (`email`, `subject`, `message`) |
+| `POST` | `/api/algorithm-race/run` | sí | Ejecutar la Carrera de Algoritmos (`arraySize`, `target`) |
 
 | Error | Cuándo |
 | --- | --- |
@@ -574,6 +575,88 @@ mvn spring-boot:run
 ```
 
 En otra terminal: `cd frontend; flutter run -d chrome --dart-define=API_URL=http://localhost:8081`. La URL del WebSocket se calcula en [config.dart](frontend/lib/config.dart) cambiando `http` por `ws` en `API_URL`.
+
+### Carrera de Algoritmos
+
+Pestaña **Carrera** de la app. Genera **un** arreglo aleatorio, lo copia para cada ordenamiento y ejecuta **a la vez** (un hilo por algoritmo, con `ExecutorService`) Bubble Sort, Insertion Sort, Quick Sort, búsqueda secuencial y búsqueda binaria. Mide tiempo y memoria de cada uno y devuelve ranking y ganador. Todo ocurre en memoria: no usa base de datos ni guarda historial, y no usa WebSockets (es una petición REST).
+
+```text
+Flutter Web ──POST /api/algorithm-race/run──> Spring Boot (requiere JWT)
+                                                 │ genera arreglo + copias
+                                                 ├── Hilo 1: Bubble Sort
+                                                 ├── Hilo 2: Insertion Sort
+                                                 ├── Hilo 3: Quick Sort
+                                                 ├── Hilo 4: Sequential Search
+                                                 └── Hilo 5: Binary Search (arreglo ya ordenado)
+                                                 ↓ tiempos, memoria, ranking, ganador (JSON)
+```
+
+Petición: `{"arraySize": 10000, "target": 4567}`. `arraySize` es libre (cualquier entero mayor que 0; solo se rechaza con `400` si no cabe en la memoria del servidor). La actividad pide probar 1,000, 5,000, 10,000 y 50,000.
+
+- Los algoritmos están escritos a mano; `Arrays.sort` solo prepara el arreglo ordenado de Binary Search (fuera del tiempo medido) y sirve de referencia para validar.
+- Tiempo: `System.nanoTime()` solo alrededor del algoritmo. La validación del resultado queda fuera de la medición.
+- Memoria (`Runtime.totalMemory() - freeMemory()`): antes, máximo durante y después. Es **aproximada**: la heap de la JVM es compartida por todos los hilos y el Garbage Collector actúa en cualquier momento.
+- Los valores del arreglo van de 0 a `arraySize - 1`, así el número buscado suele existir.
+- **Tiempo límite por algoritmo (60 s, propiedad `algorithm-race.time-limit-seconds`).** Bubble e Insertion son O(n²): con tamaños muy grandes tardarían horas. Si un algoritmo pasa el límite se interrumpe, la app lo marca como "No terminó" y el resto de la carrera se muestra normal.
+
+| Dónde | Archivo |
+| --- | --- |
+| Backend: endpoint | [AlgorithmRaceController.java](backend/src/main/java/com/example/api/algorithmrace/controller/AlgorithmRaceController.java) |
+| Backend: ejecución paralela, medición y ranking | [AlgorithmRaceService.java](backend/src/main/java/com/example/api/algorithmrace/service/AlgorithmRaceService.java) |
+| Backend: algoritmos | [algorithms/](backend/src/main/java/com/example/api/algorithmrace/algorithms/) |
+| Backend: prueba automática | [AlgorithmRaceServiceTest.java](backend/src/test/java/com/example/api/algorithmrace/AlgorithmRaceServiceTest.java) |
+| Flutter: módulo completo | [algorithm_race/](frontend/lib/algorithm_race/) |
+
+> **Para pruebas consistentes, 1 réplica del backend.** El paralelismo de la actividad ocurre dentro del Pod (hilos de Java), no entre Pods. Con varias réplicas cada carrera la atiende un Pod distinto y los resultados varían más.
+
+#### Paso a paso en Kubernetes (PowerShell, desde la raíz del proyecto)
+
+**1. Reconstruir las imágenes**
+
+```powershell
+docker build -t springboot-backend:1.0 ./backend
+docker build -t flutter-frontend:1.0 ./frontend
+```
+
+**2. Desplegar con 1 réplica del backend**
+
+```powershell
+kubectl apply -f kubernetes/backend-secret.yaml -f kubernetes/backend-deployment.yaml -f kubernetes/backend-service.yaml -f kubernetes/frontend-deployment.yaml -f kubernetes/frontend-service.yaml
+kubectl scale deployment backend-deployment --replicas=1
+kubectl get deployments
+```
+
+Si ya estaba desplegado, en lugar del `apply`: `kubectl rollout restart deployment backend-deployment` y `kubectl rollout restart deployment frontend-deployment`.
+
+**3. Probar en la app**
+
+1. Abrir http://localhost:30080 e iniciar sesión.
+2. Pestaña **Carrera**.
+3. Escribir el tamaño del arreglo y el número buscado y pulsar **EJECUTAR CARRERA**. Mientras corre aparece `Ejecutando carrera...` y el botón queda bloqueado.
+4. Repetir con 1,000, 5,000, 10,000 y 50,000 elementos, y más de una vez por tamaño (el JIT y el Garbage Collector hacen variar los tiempos).
+
+**4. Probar el endpoint directamente (opcional)**
+
+```powershell
+$login = Invoke-RestMethod -Method Post -Uri http://localhost:30081/auth/login -ContentType 'application/json' -Body '{"email":"TU_CORREO","password":"TU_CLAVE"}'
+Invoke-RestMethod -Method Post -Uri http://localhost:30081/api/algorithm-race/run -ContentType 'application/json' -Headers @{Authorization="Bearer $($login.token)"} -Body '{"arraySize":10000,"target":4567}' | ConvertTo-Json -Depth 5
+```
+
+**5. Volver a 2 réplicas**
+
+```powershell
+kubectl scale deployment backend-deployment --replicas=2
+```
+
+#### Probar sin Kubernetes
+
+```powershell
+cd backend
+docker compose up -d db
+mvn spring-boot:run
+```
+
+En otra terminal: `cd frontend; flutter run -d chrome --dart-define=API_URL=http://localhost:8081`. La prueba automática del módulo no necesita base de datos: `mvn test -Dtest=AlgorithmRaceServiceTest`.
 
 ---
 
