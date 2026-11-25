@@ -574,7 +574,7 @@ docker compose up -d db
 mvn spring-boot:run
 ```
 
-En otra terminal: `cd frontend; flutter run -d chrome --dart-define=API_URL=http://localhost:8081`. La URL del WebSocket se calcula en [config.dart](frontend/lib/config.dart) cambiando `http` por `ws` en `API_URL`.
+En otra terminal: `cd frontend; flutter run -d chrome --no-web-resources-cdn --dart-define=API_URL=http://localhost:8081`. El flag `--no-web-resources-cdn` hace que el navegador no descargue CanvasKit desde gstatic.com, así carga también sin internet. La URL del WebSocket se calcula en [config.dart](frontend/lib/config.dart) cambiando `http` por `ws` en `API_URL`.
 
 ### Carrera de Algoritmos
 
@@ -656,7 +656,7 @@ docker compose up -d db
 mvn spring-boot:run
 ```
 
-En otra terminal: `cd frontend; flutter run -d chrome --dart-define=API_URL=http://localhost:8081`. La prueba automática del módulo no necesita base de datos: `mvn test -Dtest=AlgorithmRaceServiceTest`.
+En otra terminal: `cd frontend; flutter run -d chrome --no-web-resources-cdn --dart-define=API_URL=http://localhost:8081`. La prueba automática del módulo no necesita base de datos: `mvn test -Dtest=AlgorithmRaceServiceTest`.
 
 ---
 
